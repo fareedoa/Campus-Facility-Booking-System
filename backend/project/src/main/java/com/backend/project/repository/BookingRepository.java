@@ -45,4 +45,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             @Param("endTime") LocalTime endTime,
             @Param("excludeId") Integer excludeId
     );
+
+    /**
+     * Find all bookings that are not cancelled.
+     */
+    @Query("SELECT b FROM Booking b WHERE b.status <> 'CANCELLED'")
+    List<Booking> findAllActive();
 }

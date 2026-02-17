@@ -26,7 +26,7 @@ public class BookingService {
     private final UserRepository userRepository;
 
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
+        return bookingRepository.findAllActive();
     }
 
     public Booking getBookingById(Integer id) {

@@ -1,9 +1,11 @@
 package com.backend.project.controller;
 
 import com.backend.project.dto.LoginRequest;
+import com.backend.project.dto.RegisterRequest;
 import com.backend.project.model.User;
 import com.backend.project.service.AuthenticationService;
 import com.backend.project.service.JwtService;
+import com.backend.project.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +31,46 @@ public class AuthController {
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
+    private final UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> register(
+            @Valid @RequestBody RegisterRequest request) {
+
+        // Check if username already exists
+        if (userService.getUserByUsername(request.getUsername()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Username already exists"));
+        }
+
+        // Check if email already exists
+        if (userService.getUserByEmail(request.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", "Email already exists"));
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setUsername(request.getUsername());
+        user.setPasswordHash(authenticationService.getPasswordEncoder().encode(request.getPassword()));
+        user.setRole(request.getRole());
+        user.setIsActive(true);
+
+        User savedUser = userService.createUser(user);
+
+        logger.info("New user registered: {}", savedUser.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                "message", "User registered successfully",
+                "user", Map.of(
+                        "id", savedUser.getId(),
+                        "username", savedUser.getUsername(),
+                        "name", savedUser.getName(),
+                        "email", savedUser.getEmail(),
+                        "role", savedUser.getRole().name()
+                )
+        ));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class User {
 
     public enum Role {
-        ADMIN, USER, STAFF
+        ADMIN, STUDENT
     }
 
     @Id
@@ -36,7 +36,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private Role role = Role.USER;
+    private Role role;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
