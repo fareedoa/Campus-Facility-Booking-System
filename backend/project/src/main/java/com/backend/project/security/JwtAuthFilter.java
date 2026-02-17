@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import jakarta.annotation.Nonnull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,9 +41,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final String JWT_COOKIE_NAME = "next-auth.session-token";
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@Nonnull HttpServletRequest request,
+                                    @Nonnull HttpServletResponse response,
+                                    @Nonnull FilterChain filterChain) throws ServletException, IOException {
 
         String token = null;
         boolean tokenFromCookie = false;
@@ -95,8 +95,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private boolean tokenLooksValid(String token) {
         // Basic validation: should have 3 parts separated by "."
-        boolean isValid = token.trim().split("\\.").length == 3;
-        return isValid;
+        return token.trim().split("\\.").length == 3;
     }
 
     private boolean processToken(String token, HttpServletRequest request) {

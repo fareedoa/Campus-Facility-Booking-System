@@ -42,6 +42,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+
     /**
      * Generate token using username as subject
      */
@@ -57,21 +58,23 @@ public class JwtService {
         logger.debug("Token issue time: {}, expiration time: {}", now, expiry);
         logger.debug("Using subject: {}", subject);
 
+        // Instead of using the deprecated methods, use the claims() builder
         String token = Jwts.builder()
-                .setSubject(subject)
-                .claim("role", user.getRole().name())
-                .claim("userId", user.getUserId())
-                .claim("email", user.getEmail())
-                .claim("username", user.getUsername())
-                .setIssuedAt(now)
-                .setExpiration(expiry)
+                .claims()
+                .subject(subject)
+                .issuedAt(now)
+                .expiration(expiry)
+                .add("role", user.getRole().name())
+                .add("userId", user.getUserId())
+                .add("email", user.getEmail())
+                .add("username", user.getUsername())
+                .and()
                 .signWith(getKey())
                 .compact();
 
         logger.debug("Generated JWT token: {}", token);
         return token;
     }
-
     public boolean isTokenValid(String token, UserDetails userDetails) {
         if (blacklistedTokens.contains(token)) {
             return false;
@@ -88,7 +91,7 @@ public class JwtService {
         logger.info("Extracting username from token...");
         try {
             Claims claims = extractAllClaims(token);
-            String username = null;
+            String username;
             if (claims.get("username") != null) {
                 username = claims.get("username", String.class);
                 logger.debug("Found username in 'username' claim: {}", username);
@@ -216,10 +219,6 @@ public class JwtService {
             logger.error("Illegal Argument Exception: {}", e.getMessage());
             return true;
         }
-    }
-
-    public void invalidateToken(String token) {
-        blacklistedTokens.add(token);
     }
 
     public boolean isTokenBlacklisted(String token) {
