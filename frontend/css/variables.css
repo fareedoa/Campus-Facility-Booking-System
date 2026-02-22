@@ -1,0 +1,38 @@
+/*
+ * variables.css
+ * ─────────────────────────────────────────────────────────
+ * All design tokens: colours, spacing, shadows, transitions.
+ * Edit this file to retheme the entire application at once.
+ * ─────────────────────────────────────────────────────────
+ */
+
+:root {
+  /* ── Brand Colours ── */
+  --ink:          #0a0a0f;
+  --cream:        #f5f0e8;
+  --gold:         #c9a84c;
+  --gold-light:   #e8c96a;
+  --gold-pale:    #f5e9c8;
+  --forest:       #1a3d2b;
+  --forest-mid:   #2d5a3f;
+  --sage:         #7aab8a;
+  --crimson:      #c0392b;
+
+  /* ── Neutral / Surface Colours ── */
+  --smoke:   #e8e4dc;
+  --mid:     #8a8070;
+  --surface: #faf7f2;
+  --card:    #ffffff;
+  --border:  rgba(201, 168, 76, 0.25);
+
+  /* ── Shadows ── */
+  --shadow:      0 4px 30px rgba(10, 10, 15, 0.10);
+  --shadow-deep: 0 16px 60px rgba(10, 10, 15, 0.18);
+
+  /* ── Border Radius ── */
+  --radius:    16px;
+  --radius-sm: 8px;
+
+  /* ── Animation ── */
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

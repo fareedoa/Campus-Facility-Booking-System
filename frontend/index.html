@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CampusBook — University Facility Booking</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- ── Stylesheets (order matters) ── -->
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/layout.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/pages.css"/>
+</head>
+<body>
+
+  <!-- ── SIDEBAR NAVIGATION ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">CampusBook</div>
+      <div class="logo-sub">UG Facility Booking Portal</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Main</div>
+      <button class="nav-item active" onclick="showPage('dashboard', this)">
+        <span class="nav-icon">⊞</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="showPage('facilities', this)">
+        <span class="nav-icon">🏛</span><span>Facilities</span>
+      </button>
+      <button class="nav-item" onclick="showPage('availability', this)">
+        <span class="nav-icon">📅</span><span>Availability</span>
+      </button>
+      <button class="nav-item" onclick="showPage('bookings', this)">
+        <span class="nav-icon">📋</span><span>My Bookings</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin</div>
+      <button class="nav-item" onclick="showPage('admin', this)">
+        <span class="nav-icon">⚙️</span><span>Manage</span>
+      </button>
+      <button class="nav-item" onclick="showPage('docs', this)">
+        <span class="nav-icon">📖</span><span>API Docs</span>
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">K</div>
+        <div>
+          <div class="user-name" id="userName">Kofi Mensah</div>
+          <div class="user-role" id="userRoleLabel">Student</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT AREA ── -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="admin-toggle">
+          <span>Admin View</span>
+          <label class="toggle">
+            <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <button class="btn btn-gold" onclick="openBookingModal()">+ New Booking</button>
+      </div>
+    </div>
+
+    <!-- ── PAGE: DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <!-- Injected by pages/dashboard.js -->
+    </div>
+
+    <!-- ── PAGE: FACILITIES ── -->
+    <div class="page" id="page-facilities">
+      <!-- Injected by pages/facilities.js -->
+    </div>
+
+    <!-- ── PAGE: AVAILABILITY ── -->
+    <div class="page" id="page-availability">
+      <!-- Injected by pages/availability.js -->
+    </div>
+
+    <!-- ── PAGE: BOOKINGS ── -->
+    <div class="page" id="page-bookings">
+      <!-- Injected by pages/bookings.js -->
+    </div>
+
+    <!-- ── PAGE: ADMIN ── -->
+    <div class="page" id="page-admin">
+      <!-- Injected by pages/admin.js -->
+    </div>
+
+    <!-- ── PAGE: API DOCS ── -->
+    <div class="page" id="page-docs">
+      <!-- Injected by pages/docs.js -->
+    </div>
+
+  </div><!-- end .main -->
+
+  <!-- ── MODALS ── -->
+
+  <!-- Booking Modal -->
+  <div class="modal-overlay" id="bookingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+        <div class="modal-title" id="bookingModalTitle">New Booking</div>
+        <div class="modal-sub">Reserve a campus facility</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Facility</label>
+            <select id="formFacility" onchange="updateBookingSummary()">
+              <option value="">Select a facility</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="formDate" onchange="updateBookingSummary()"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Time</label>
+            <input type="time" id="formStart" value="09:00" onchange="updateBookingSummary()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time</label>
+            <input type="time" id="formEnd" value="09:30" onchange="updateBookingSummary()"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="formName" placeholder="Your full name"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" id="formEmail" placeholder="your@email.com"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Purpose / Notes</label>
+          <textarea id="formNotes" placeholder="Describe the purpose of your booking…"></textarea>
+        </div>
+        <div class="summary-box" id="bookingSummary" style="display:none;">
+          <div class="summary-box-title">Booking Summary</div>
+          <div class="summary-row"><span class="summary-key">Facility</span><span class="summary-val" id="sumFacility">—</span></div>
+          <div class="summary-row"><span class="summary-key">Date</span><span class="summary-val" id="sumDate">—</span></div>
+          <div class="summary-row"><span class="summary-key">Time</span><span class="summary-val" id="sumTime">—</span></div>
+        </div>
+        <div id="formError" class="form-error" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('bookingModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="submitBooking()" id="submitBtn">Confirm Booking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Facility Modal -->
+  <div class="modal-overlay" id="facilityModal">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal('facilityModal')">✕</button>
+        <div class="modal-title">Add Facility</div>
+        <div class="modal-sub">Register a new campus space</div>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Facility Name</label>
+          <input type="text" id="facName" placeholder="e.g. Engineering Lecture Hall A"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Location / Building</label>
+            <input type="text" id="facLocation" placeholder="e.g. Block C, Level 2"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacity</label>
+            <input type="text" id="facCapacity" placeholder="e.g. 120"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="facType">
+            <option>Lecture Hall</option>
+            <option>Lab</option>
+            <option>Study Room</option>
+            <option>Conference</option>
+            <option>Sports</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('facilityModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="submitFacility()">Add Facility</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Booking Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+        <div class="modal-title">Edit Booking</div>
+        <div class="modal-sub">Update booking details</div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId"/>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="editDate"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="editStatus">
+              <option>Confirmed</option>
+              <option>Pending</option>
+              <option>Cancelled</option>
+              <option>Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Time</label>
+            <input type="time" id="editStart"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time</label>
+            <input type="time" id="editEnd"/>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('editModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="submitEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ── JavaScript (load order matters) ── -->
+  <script src="js/config.js"></script>
+  <script src="js/mockdata.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="pages/dashboard.js"></script>
+  <script src="pages/facilities.js"></script>
+  <script src="pages/availability.js"></script>
+  <script src="pages/bookings.js"></script>
+  <script src="pages/admin.js"></script>
+  <script src="pages/docs.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
