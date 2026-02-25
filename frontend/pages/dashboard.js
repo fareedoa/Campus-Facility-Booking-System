@@ -190,9 +190,9 @@ function _renderMiniChart() {
   const total = counts.reduce((a, b) => a + b, 0);
   if (total === 0) {
     chart.innerHTML = `
-      <div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:120px;">
+      <div class="empty-state" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;min-height:120px;text-align:center;">
         <div class="empty-icon">📊</div>
-        <p style="margin:8px 0 0 0;">No bookings this week</p>
+        <p style="margin:8px 0 0 0;text-align:center;">No bookings this week</p>
       </div>`;
     return;
   }
