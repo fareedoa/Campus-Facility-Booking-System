@@ -30,6 +30,7 @@
   color: var(--gold);
   box-shadow: 0 2px 12px rgba(26, 61, 43, 0.3);
 }
+
 .btn-primary:hover {
   background: var(--forest-mid);
   transform: translateY(-1px);
@@ -41,6 +42,7 @@
   color: var(--forest);
   box-shadow: 0 2px 12px rgba(201, 168, 76, 0.35);
 }
+
 .btn-gold:hover {
   background: var(--gold-light);
   transform: translateY(-1px);
@@ -51,12 +53,25 @@
   color: var(--forest);
   border: 1.5px solid var(--border);
 }
-.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-.btn-danger { background: var(--crimson); color: #fff; }
-.btn-danger:hover { background: #a93226; }
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
 
-.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-danger {
+  background: var(--crimson);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #a93226;
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
 
 /* ════════════════════════════════════
    CARDS
@@ -69,7 +84,9 @@
   overflow: hidden;
 }
 
-.card-body { padding: 24px; }
+.card-body {
+  padding: 24px;
+}
 
 .card-header {
   padding: 20px 24px;
@@ -79,14 +96,23 @@
   justify-content: space-between;
 }
 
-.card-header-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.card-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
 
 /* ════════════════════════════════════
    DATA TABLES
 ════════════════════════════════════ */
-.table-wrap { overflow-x: auto; }
+.table-wrap {
+  overflow-x: auto;
+}
 
-table { width: 100%; border-collapse: collapse; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 th {
   text-align: left;
@@ -108,7 +134,9 @@ td {
   transition: var(--transition);
 }
 
-tr:hover td { background: rgba(201, 168, 76, 0.04); }
+tr:hover td {
+  background: rgba(201, 168, 76, 0.04);
+}
 
 /* ════════════════════════════════════
    STATUS BADGES
@@ -124,12 +152,30 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   letter-spacing: 0.5px;
 }
 
-.badge::before { content: '●'; font-size: 8px; }
+.badge::before {
+  content: '●';
+  font-size: 8px;
+}
 
-.badge-confirmed  { background: rgba(26, 61, 43, 0.1);    color: var(--forest); }
-.badge-pending    { background: rgba(201, 168, 76, 0.15);  color: #9a7a2a; }
-.badge-cancelled  { background: rgba(192, 57, 43, 0.1);    color: var(--crimson); }
-.badge-completed  { background: rgba(122, 171, 138, 0.15); color: #2d6b48; }
+.badge-confirmed {
+  background: rgba(26, 61, 43, 0.1);
+  color: var(--forest);
+}
+
+.badge-pending {
+  background: rgba(201, 168, 76, 0.15);
+  color: #9a7a2a;
+}
+
+.badge-cancelled {
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--crimson);
+}
+
+.badge-completed {
+  background: rgba(122, 171, 138, 0.15);
+  color: #2d6b48;
+}
 
 /* ════════════════════════════════════
    MODALS
@@ -146,7 +192,9 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   animation: fadeIn 0.25s ease;
 }
 
-.modal-overlay.open { display: flex; }
+.modal-overlay.open {
+  display: flex;
+}
 
 .modal {
   background: var(--card);
@@ -158,6 +206,11 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   box-shadow: var(--shadow-deep);
   border: 1px solid var(--border);
   animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Compact modal for confirmation dialogs */
+.modal.modal-sm {
+  width: 420px;
 }
 
 .modal-header {
@@ -172,9 +225,16 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   color: var(--ink);
 }
 
-.modal-sub { font-size: 13px; color: var(--mid); margin-top: 4px; }
+.modal-sub {
+  font-size: 13px;
+  color: var(--mid);
+  margin-top: 4px;
+}
 
-.modal-body  { padding: 24px 28px; }
+.modal-body {
+  padding: 24px 28px;
+}
+
 .modal-footer {
   padding: 16px 28px 24px;
   display: flex;
@@ -191,7 +251,11 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   color: var(--mid);
   transition: var(--transition);
 }
-.modal-close:hover { color: var(--crimson); transform: rotate(90deg); }
+
+.modal-close:hover {
+  color: var(--crimson);
+  transform: rotate(90deg);
+}
 
 /* ════════════════════════════════════
    FORMS
@@ -202,7 +266,15 @@ tr:hover td { background: rgba(201, 168, 76, 0.04); }
   gap: 14px;
 }
 
-.form-group { margin-bottom: 16px; }
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
 
 .form-label {
   font-size: 11px;
@@ -248,7 +320,10 @@ select {
   cursor: pointer;
 }
 
-textarea { min-height: 80px; resize: vertical; }
+textarea {
+  min-height: 80px;
+  resize: vertical;
+}
 
 .form-error {
   color: var(--crimson);
@@ -281,9 +356,18 @@ textarea { min-height: 80px; resize: vertical; }
   font-size: 13px;
 }
 
-.summary-row:not(:last-child) { border-bottom: 1px solid var(--smoke); }
-.summary-key { color: var(--mid); }
-.summary-val { font-weight: 600; color: var(--ink); }
+.summary-row:not(:last-child) {
+  border-bottom: 1px solid var(--smoke);
+}
+
+.summary-key {
+  color: var(--mid);
+}
+
+.summary-val {
+  font-weight: 600;
+  color: var(--ink);
+}
 
 /* ════════════════════════════════════
    SEARCH BAR & FILTER CHIPS
@@ -295,8 +379,14 @@ textarea { min-height: 80px; resize: vertical; }
   align-items: center;
 }
 
-.search-input-wrap { position: relative; flex: 1; }
-.search-input-wrap input { padding-left: 38px; }
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.search-input-wrap input {
+  padding-left: 38px;
+}
 
 .search-icon {
   position: absolute;
@@ -326,8 +416,16 @@ textarea { min-height: 80px; resize: vertical; }
   color: var(--mid);
 }
 
-.chip:hover  { border-color: var(--gold); color: var(--gold); }
-.chip.active { background: var(--forest); color: var(--gold); border-color: var(--forest); }
+.chip:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.chip.active {
+  background: var(--forest);
+  color: var(--gold);
+  border-color: var(--forest);
+}
 
 /* ════════════════════════════════════
    TOAST NOTIFICATIONS
@@ -358,15 +456,21 @@ textarea { min-height: 80px; resize: vertical; }
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-.toast.success { border-left-color: var(--sage); }
-.toast.error   { border-left-color: var(--crimson); }
+.toast.success {
+  border-left-color: var(--sage);
+}
+
+.toast.error {
+  border-left-color: var(--crimson);
+}
 
 /* ════════════════════════════════════
    LOADING SPINNER
 ════════════════════════════════════ */
 .spinner {
   display: inline-block;
-  width: 18px; height: 18px;
+  width: 18px;
+  height: 18px;
   border: 2.5px solid rgba(201, 168, 76, 0.3);
   border-top-color: var(--gold);
   border-radius: 50%;
@@ -411,18 +515,33 @@ textarea { min-height: 80px; resize: vertical; }
   border-bottom: 1px solid var(--smoke);
   transition: var(--transition);
 }
-.activity-item:last-child { border-bottom: none; }
+
+.activity-item:last-child {
+  border-bottom: none;
+}
 
 .activity-dot {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
 }
 
-.activity-text { font-size: 14px; color: var(--ink); line-height: 1.5; }
-.activity-time { font-size: 12px; color: var(--mid); margin-top: 2px; }
+.activity-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: var(--mid);
+  margin-top: 2px;
+}
 
 /* ════════════════════════════════════
    MINI BAR CHART (Dashboard)
@@ -449,5 +568,12 @@ textarea { min-height: 80px; resize: vertical; }
   transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bar:hover { background: var(--forest); }
-.bar-label { font-size: 9px; color: var(--mid); font-weight: 600; }
+.bar:hover {
+  background: var(--forest);
+}
+
+.bar-label {
+  font-size: 9px;
+  color: var(--mid);
+  font-weight: 600;
+}

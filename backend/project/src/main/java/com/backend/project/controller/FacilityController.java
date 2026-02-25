@@ -36,7 +36,8 @@ public class FacilityController {
         facility.setName(request.getName());
         facility.setLocation(request.getLocation());
         facility.setCapacity(request.getCapacity());
-        
+        facility.setType(request.getType());
+
         Facility createdFacility = facilityService.createFacility(facility);
         return new ResponseEntity<>(createdFacility, HttpStatus.CREATED);
     }
@@ -47,6 +48,7 @@ public class FacilityController {
         facilityDetails.setName(request.getName());
         facilityDetails.setLocation(request.getLocation());
         facilityDetails.setCapacity(request.getCapacity());
+        facilityDetails.setType(request.getType());
 
         Facility updatedFacility = facilityService.updateFacility(id, facilityDetails);
         return ResponseEntity.ok(updatedFacility);

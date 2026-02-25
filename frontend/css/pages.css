@@ -24,19 +24,25 @@
 .hero-banner::before {
   content: '';
   position: absolute;
-  right: -60px; top: -80px;
-  width: 340px; height: 340px;
+  right: -60px;
+  top: -80px;
+  width: 340px;
+  height: 340px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(201, 168, 76, 0.15) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .hero-banner::after {
   content: '';
   position: absolute;
-  left: -40px; bottom: -100px;
-  width: 280px; height: 280px;
+  left: -40px;
+  bottom: -100px;
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(122, 171, 138, 0.12) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .hero-greeting {
@@ -57,7 +63,9 @@
   margin-bottom: 16px;
 }
 
-.hero-title span { color: var(--gold); }
+.hero-title span {
+  color: var(--gold);
+}
 
 .hero-sub {
   font-size: 15px;
@@ -67,7 +75,13 @@
   margin-bottom: 28px;
 }
 
-.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 2;
+}
 
 /* ── Dashboard Stats Grid ── */
 .stats-grid {
@@ -88,20 +102,34 @@
   transition: var(--transition);
 }
 
-.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-deep); }
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-deep);
+}
 
 /* Coloured top accent bar per card */
 .stat-card::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 3px;
   background: var(--gold);
   border-radius: 3px 3px 0 0;
 }
-.stat-card:nth-child(2)::after { background: var(--forest); }
-.stat-card:nth-child(3)::after { background: var(--sage); }
-.stat-card:nth-child(4)::after { background: var(--crimson); }
+
+.stat-card:nth-child(2)::after {
+  background: var(--forest);
+}
+
+.stat-card:nth-child(3)::after {
+  background: var(--sage);
+}
+
+.stat-card:nth-child(4)::after {
+  background: var(--crimson);
+}
 
 .stat-label {
   font-size: 11px;
@@ -120,10 +148,38 @@
   line-height: 1;
 }
 
-.stat-change { font-size: 12px; color: var(--sage); margin-top: 6px; }
+.stat-change {
+  font-size: 12px;
+  color: var(--sage);
+  margin-top: 6px;
+}
 
 @media (max-width: 1100px) {
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .avail-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hero-banner {
+    padding: 30px 24px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
 }
 
 /* ════════════════════════════════════
@@ -145,7 +201,10 @@
   cursor: pointer;
 }
 
-.facility-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-deep); }
+.facility-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-deep);
+}
 
 .facility-img {
   height: 160px;
@@ -156,37 +215,64 @@
   justify-content: center;
 }
 
-.facility-img .facility-emoji { font-size: 56px; }
+.facility-img .facility-emoji {
+  font-size: 56px;
+}
 
 .facility-img .facility-tag {
-  position: absolute; top: 12px; right: 12px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
   background: rgba(10, 10, 15, 0.65);
   backdrop-filter: blur(8px);
   color: #fff;
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
 .facility-img .avail-badge {
-  position: absolute; top: 12px; left: 12px;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 1px; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 20px;
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
 }
 
-.avail-badge.open { background: rgba(122, 171, 138, 0.9); color: #fff; }
-.avail-badge.busy { background: rgba(192, 57, 43, 0.85);  color: #fff; }
+.avail-badge.open {
+  background: rgba(122, 171, 138, 0.9);
+  color: #fff;
+}
 
-.facility-body { padding: 18px 20px; }
+.avail-badge.busy {
+  background: rgba(192, 57, 43, 0.85);
+  color: #fff;
+}
+
+.facility-body {
+  padding: 18px 20px;
+}
 
 .facility-name {
   font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 700;
-  margin-bottom: 6px; color: var(--ink);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--ink);
 }
 
-.facility-meta { display: flex; gap: 16px; margin-bottom: 14px; }
+.facility-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 14px;
+}
 
 .facility-meta-item {
   display: flex;
@@ -221,7 +307,9 @@
 }
 
 @media (max-width: 1100px) {
-  .avail-container { grid-template-columns: 1fr; }
+  .avail-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Mini calendar widget */
@@ -244,21 +332,25 @@
 
 .cal-month {
   font-family: 'Playfair Display', serif;
-  font-size: 18px; font-weight: 700;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .cal-nav {
   background: rgba(255, 255, 255, 0.15);
   border: none;
   color: var(--cream);
-  width: 30px; height: 30px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   transition: var(--transition);
 }
 
-.cal-nav:hover { background: rgba(255, 255, 255, 0.25); }
+.cal-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
 
 .cal-days-header {
   display: grid;
@@ -296,26 +388,62 @@
   color: var(--ink);
 }
 
-.cal-day:hover                    { background: var(--gold-pale); color: var(--forest); }
-.cal-day.today:not(.selected)    { background: var(--forest); color: var(--gold); font-weight: 700; }
-.cal-day.selected                 { background: var(--gold); color: var(--forest); font-weight: 700; }
-.cal-day.other-month              { color: var(--mid); opacity: 0.4; }
+.cal-day:hover {
+  background: var(--gold-pale);
+  color: var(--forest);
+}
+
+.cal-day.today:not(.selected) {
+  background: var(--forest);
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.cal-day.selected {
+  background: var(--gold);
+  color: var(--forest);
+  font-weight: 700;
+}
+
+.cal-day.other-month {
+  color: var(--mid);
+  opacity: 0.4;
+}
 
 /* Dot indicator for days with bookings */
-.cal-day.has-bookings { position: relative; }
+.cal-day.has-bookings {
+  position: relative;
+}
+
 .cal-day.has-bookings::after {
   content: '';
   position: absolute;
-  bottom: 3px; left: 50%;
+  bottom: 3px;
+  left: 50%;
   transform: translateX(-50%);
-  width: 4px; height: 4px;
+  width: 4px;
+  height: 4px;
   background: var(--gold);
   border-radius: 50%;
 }
-.cal-day.has-bookings.today::after { background: var(--gold-light); }
+
+.cal-day.has-bookings.today::after {
+  background: var(--gold-light);
+}
+
+/* Past dates — greyed out and not clickable */
+.cal-day.past {
+  color: var(--mid);
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  text-decoration: line-through;
+}
 
 /* ── Availability Time Slots ── */
-.facility-selector { margin-top: 16px; }
+.facility-selector {
+  margin-top: 16px;
+}
 
 .select-label {
   font-size: 11px;
@@ -336,9 +464,19 @@
 }
 
 /* Custom scrollbar for slots */
-.slots-grid::-webkit-scrollbar { width: 4px; }
-.slots-grid::-webkit-scrollbar-track { background: var(--smoke); border-radius: 4px; }
-.slots-grid::-webkit-scrollbar-thumb { background: var(--gold);  border-radius: 4px; }
+.slots-grid::-webkit-scrollbar {
+  width: 4px;
+}
+
+.slots-grid::-webkit-scrollbar-track {
+  background: var(--smoke);
+  border-radius: 4px;
+}
+
+.slots-grid::-webkit-scrollbar-thumb {
+  background: var(--gold);
+  border-radius: 4px;
+}
 
 .time-slot {
   padding: 10px 6px;
@@ -353,8 +491,14 @@
   color: var(--ink);
 }
 
-.time-slot:hover:not(.booked) { border-color: var(--gold); background: var(--gold-pale); }
-.time-slot.available { border-color: rgba(122, 171, 138, 0.4); }
+.time-slot:hover:not(.booked) {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+}
+
+.time-slot.available {
+  border-color: rgba(122, 171, 138, 0.4);
+}
 
 .time-slot.booked {
   background: rgba(192, 57, 43, 0.08);

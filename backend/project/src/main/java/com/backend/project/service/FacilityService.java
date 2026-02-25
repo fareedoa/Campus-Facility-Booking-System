@@ -32,6 +32,10 @@ public class FacilityService {
         facility.setName(facilityDetails.getName());
         facility.setLocation(facilityDetails.getLocation());
         facility.setCapacity(facilityDetails.getCapacity());
+        // Bug fix: type was never updated on edit
+        if (facilityDetails.getType() != null) {
+            facility.setType(facilityDetails.getType());
+        }
         return facilityRepository.save(facility);
     }
 

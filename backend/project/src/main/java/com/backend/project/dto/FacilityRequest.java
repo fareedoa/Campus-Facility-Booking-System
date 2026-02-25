@@ -21,4 +21,6 @@ public class FacilityRequest {
     @NotNull(message = "Capacity is required")
     @Min(value = 1, message = "Capacity must be greater than 0")
     private Integer capacity;
+
+    private String type;
 }

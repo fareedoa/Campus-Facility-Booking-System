@@ -50,12 +50,21 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
+                // Local development servers
+                "http://localhost:3000",
                 "http://localhost:5173",
-                "http://localhost:3000"
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "http://localhost:8000",
+                "http://localhost:8001",
+                "http://localhost:8080"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        config.setAllowCredentials(true);
+        // Also allow the browser to open files directly (file:// origin shows as "null")
+        config.setAllowedOriginPatterns(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowCredentials(false); // set false when using allowedOriginPatterns("*")
         config.setMaxAge(3600L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

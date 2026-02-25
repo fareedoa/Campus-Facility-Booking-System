@@ -24,7 +24,8 @@ function prettyDate(dateStr) {
 
 /** Return the facility name for a given facility ID */
 function getFacilityName(id) {
-  return facilities.find(f => f.id == id)?.name || 'Unknown Facility';
+  const fac = facilities.find(f => f.id == id || f.id === parseInt(id));
+  return fac?.name || 'Unknown Facility';
 }
 
 // ── Toast notification ───────────────────────────────────
@@ -43,7 +44,7 @@ function toast(msg, type = '') {
 
   // Auto-dismiss after 3.5s
   setTimeout(() => {
-    el.style.opacity   = '0';
+    el.style.opacity = '0';
     el.style.transform = 'translateX(20px)';
     setTimeout(() => el.remove(), 300);
   }, 3500);
@@ -77,5 +78,4 @@ function refreshAllPages() {
   renderFacilities();
   renderCalendar();
   renderBookingsTable();
-  loadAdminData();
 }

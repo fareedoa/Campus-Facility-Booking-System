@@ -3,53 +3,80 @@
  * ─────────────────────────────────────────────────────────
  * Application entry point.
  * Responsibilities:
- *   - init(): fetch data, seed UI, render first page
+ *   - init(): verify auth, fetch data, render first page
  *   - showPage(): navigate between pages
- *   - toggleAdminMode(): switch between student and admin views
+ *   - Logout handler
  * ─────────────────────────────────────────────────────────
  */
+
+// ════════════════════════════════════
+//  AUTH GUARD
+// ════════════════════════════════════
+
+function loadCurrentUser() {
+  const raw = localStorage.getItem('campusbook_user');
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch (_) { return null; }
+}
+
+function redirectToLogin() {
+  window.location.href = 'login.html';
+}
 
 // ════════════════════════════════════
 //  INIT
 // ════════════════════════════════════
 
 async function init() {
-  // Set minimum date on booking form to today
+  // ── No authentication required for students ──
+  currentUser = loadCurrentUser() || { name: 'Guest Student', role: 'STUDENT', username: '' };
+  const token = localStorage.getItem('campusbook_token');
+
+  // ── Display user info in sidebar ──
+  const userNameEl = document.getElementById('sidebarUserName');
+  const userRoleEl = document.getElementById('sidebarUserRole');
+  if (userNameEl) userNameEl.textContent = currentUser.name || currentUser.username || 'Student';
+  if (userRoleEl) userRoleEl.textContent = currentUser.role === 'ADMIN' ? 'Administrator' : 'Student';
+
+  // ── Set minimum date on booking form to today ──
   const todayStr = fmtDate(new Date());
   const formDate = document.getElementById('formDate');
   if (formDate) {
     formDate.value = todayStr;
-    formDate.min   = todayStr;
+    formDate.min = todayStr;
   }
 
-  // Set user info in sidebar
-  document.getElementById('userAvatar').textContent    = CURRENT_USER.initials;
-  document.getElementById('userName').textContent      = CURRENT_USER.name;
-  document.getElementById('userRoleLabel').textContent = CURRENT_USER.role;
+  // ── Fetch data from backend ──
+  try {
+    const apiFacilities = await apiFetchAllFacilities();
+    facilities = Array.isArray(apiFacilities) ? apiFacilities : [];
+  } catch (err) {
+    console.error('[INIT] Failed to load facilities:', err.message);
+    facilities = [];
+  }
 
-  // ── Fetch data (try API, fall back to mock) ──
-  const apiFacilities = await apiFetchAllFacilities();
-  facilities = apiFacilities || MOCK_FACILITIES;
+  try {
+    const apiBookings = await apiFetchAllBookings();
+    bookings = Array.isArray(apiBookings) ? apiBookings : [];
+  } catch (err) {
+    console.error('[INIT] Failed to load bookings:', err.message);
+    bookings = [];
+  }
 
-  const apiBookings = await apiFetchAllBookings();
-  bookings = apiBookings || MOCK_BOOKINGS;
-
-  // ── Seed all pages ──
-  populateFacilitySelects();
+  // ── Build all page skeletons first (creates the DOM elements) ──
   buildDashboardHTML();
   buildFacilitiesHTML();
   buildAvailabilityHTML();
   buildBookingsHTML();
-  buildAdminHTML();
-  buildDocsHTML();
+
+  // ── Populate selects AFTER pages are built (elements now exist in DOM) ──
+  populateFacilitySelects();
 
   // ── Render dynamic content ──
   renderDashboard();
   renderFacilities();
   renderCalendar();
   renderBookingsTable();
-  loadAdminData();
-  renderDocs();
 }
 
 // ════════════════════════════════════
@@ -57,41 +84,49 @@ async function init() {
 // ════════════════════════════════════
 
 function showPage(id, btn) {
-  // Hide all pages, deactivate all nav items
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
-  // Show target page
-  document.getElementById('page-' + id).classList.add('active');
-  if (btn) btn.classList.add('active');
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+
+  // Auto-resolve the nav item if btn isn't provided (e.g. from dashboard hero buttons)
+  const activeBtn = btn || document.querySelector(`.nav-item[onclick*="'${id}'"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+
   document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
+
+  // Close the mobile drawer after navigation
+  closeSidebar();
 
   // Page-specific on-enter actions
   if (id === 'availability') {
     selectedDate = fmtDate(new Date());
     renderCalendar();
-    renderSlotsForSelected();
+    const facEl = document.getElementById('availFacility');
+    if (facEl && facEl.value) loadSlots();
   }
 }
 
 // ════════════════════════════════════
-//  ADMIN MODE TOGGLE
+//  MOBILE SIDEBAR DRAWER
 // ════════════════════════════════════
 
-function toggleAdminMode() {
-  isAdmin = document.getElementById('adminToggle').checked;
+function toggleSidebar() {
+  document.body.classList.toggle('sidebar-open');
+}
 
-  // Update role label in sidebar
-  document.getElementById('userRoleLabel').textContent = isAdmin ? 'Administrator' : 'Student';
+function closeSidebar() {
+  document.body.classList.remove('sidebar-open');
+}
 
-  // Show/hide the Add Facility button
-  const addBtn = document.getElementById('addFacilityBtn');
-  if (addBtn) addBtn.style.display = isAdmin ? '' : 'none';
+// ════════════════════════════════════
+//  LOGOUT
+// ════════════════════════════════════
 
-  // Re-render affected pages
-  renderFacilities();
-  renderBookingsTable();
-  loadAdminData();
+async function logout() {
+  await apiLogout();
+  redirectToLogin();
 }
 
 // ════════════════════════════════════

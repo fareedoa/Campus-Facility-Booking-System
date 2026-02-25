@@ -2,116 +2,166 @@
  * api.js
  * ─────────────────────────────────────────────────────────
  * All communication with the backend REST API lives here.
- * Each function maps directly to one of the seven endpoints
+ * Each function maps directly to one of the endpoints
  * defined in Task 2.
  *
- * Every function returns the parsed JSON response, or null
- * on failure — callers should always handle the null case
- * by falling back to local state.
+ * Error handling: non-ok responses now extract the backend
+ * error message and throw it — callers receive a real error
+ * rather than a silent null.
  * ─────────────────────────────────────────────────────────
  */
+
+// ── Auth header helper ───────────────────────────────────
+
+function getAuthHeader() {
+  const token = localStorage.getItem('campusbook_token');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 // ── Low-level helpers ────────────────────────────────────
 
 async function apiGet(path) {
-  try {
-    const res = await fetch(BASE_URL + path);
-    if (!res.ok) throw new Error(`GET ${path} → ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn('[API]', err.message);
-    return null;
+  const res = await fetch(BASE_URL + path, {
+    headers: { ...getAuthHeader() }
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.message || `GET ${path} → ${res.status}`);
   }
+  return res.json();
 }
 
 async function apiPost(path, body) {
-  try {
-    const res = await fetch(BASE_URL + path, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(`POST ${path} → ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn('[API]', err.message);
-    return null;
-  }
+  const res = await fetch(BASE_URL + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `POST ${path} → ${res.status}`);
+  return data;
 }
 
 async function apiPut(path, body) {
-  try {
-    const res = await fetch(BASE_URL + path, {
-      method:  'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(`PUT ${path} → ${res.status}`);
-    return await res.json();
-  } catch (err) {
-    console.warn('[API]', err.message);
-    return null;
-  }
+  const res = await fetch(BASE_URL + path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `PUT ${path} → ${res.status}`);
+  return data;
+}
+
+async function apiPatch(path, body = null) {
+  const res = await fetch(BASE_URL + path, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+    body: body ? JSON.stringify(body) : null,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `PATCH ${path} → ${res.status}`);
+  return data;
 }
 
 async function apiDelete(path) {
-  try {
-    const res = await fetch(BASE_URL + path, { method: 'DELETE' });
-    if (!res.ok) throw new Error(`DELETE ${path} → ${res.status}`);
-    return true;
-  } catch (err) {
-    console.warn('[API]', err.message);
-    return null;
-  }
+  const res = await fetch(BASE_URL + path, {
+    method: 'DELETE',
+    headers: { ...getAuthHeader() }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || `DELETE ${path} → ${res.status}`);
+  return data;
+}
+
+// ── Auth Endpoints ───────────────────────────────────────
+
+async function apiLogin(username, password) {
+  return apiPost('/api/auth/login', { username, password });
+}
+
+async function apiRegister(payload) {
+  return apiPost('/api/auth/register', payload);
+}
+
+async function apiLogout() {
+  try { await apiPost('/api/auth/logout', {}); } catch (_) { /* ignore */ }
+  localStorage.removeItem('campusbook_token');
+  localStorage.removeItem('campusbook_user');
+}
+
+async function apiGetCurrentUser() {
+  return apiGet('/api/auth/me');
 }
 
 // ── Facility Endpoints ───────────────────────────────────
 
 // GET /facilities
 async function apiFetchAllFacilities() {
-  return await apiGet('/facilities');
+  return apiGet('/api/facilities');
 }
 
 // GET /facilities/:id
 async function apiFetchFacility(id) {
-  return await apiGet(`/facilities/${id}`);
+  return apiGet(`/api/facilities/${id}`);
 }
 
 // POST /facilities
 async function apiCreateFacility(payload) {
-  return await apiPost('/facilities', payload);
+  return apiPost('/api/facilities', payload);
+}
+
+// PUT /facilities/:id
+async function apiUpdateFacility(id, payload) {
+  return apiPut(`/api/facilities/${id}`, payload);
 }
 
 // DELETE /facilities/:id
 async function apiDeleteFacility(id) {
-  return await apiDelete(`/facilities/${id}`);
+  return apiDelete(`/api/facilities/${id}`);
 }
 
 // ── Booking Endpoints ────────────────────────────────────
 
-// GET /bookings
-async function apiFetchAllBookings() {
-  return await apiGet('/bookings');
+// GET /bookings  (all) or GET /bookings?studentId=X (filtered)
+async function apiFetchAllBookings(studentId = null) {
+  const qs = studentId ? `?studentId=${encodeURIComponent(studentId)}` : '';
+  return apiGet(`/api/bookings${qs}`);
+}
+
+// GET /bookings/:id
+async function apiFetchBooking(id) {
+  return apiGet(`/api/bookings/${id}`);
 }
 
 // POST /bookings
 async function apiCreateBooking(payload) {
-  return await apiPost('/bookings', payload);
+  return apiPost('/api/bookings', payload);
 }
 
-// PUT /bookings/:id
+// PUT /bookings/:id  (full update — admin)
 async function apiUpdateBooking(id, payload) {
-  return await apiPut(`/bookings/${id}`, payload);
+  return apiPut(`/api/bookings/${id}`, payload);
 }
 
-// DELETE /bookings/:id
+// PATCH /bookings/:id/cancel  — soft-cancel (sets status = CANCELLED)
 async function apiCancelBooking(id) {
-  return await apiDelete(`/bookings/${id}`);
+  return apiPatch(`/api/bookings/${id}/cancel`);
 }
 
-// ── Availability Endpoint ────────────────────────────────
+// DELETE /bookings/:id  — hard-delete (admin only)
+async function apiDeleteBooking(id) {
+  return apiDelete(`/api/bookings/${id}`);
+}
 
-// GET /availability?facility_id=X&date=YYYY-MM-DD
-async function apiFetchAvailability(facilityId, date) {
-  return await apiGet(`/availability?facility_id=${facilityId}&date=${date}`);
+// ── Availability Endpoints ───────────────────────────────
+
+// GET /availability?facilityId=X&date=YYYY-MM-DD&startTime=HH:MM&endTime=HH:MM
+async function apiFetchAvailability(facilityId, date, startTime, endTime) {
+  return apiGet(`/api/availability?facilityId=${facilityId}&date=${date}&startTime=${startTime}&endTime=${endTime}`);
+}
+
+// GET /availability/slots?facilityId=X&date=YYYY-MM-DD
+async function apiFetchAvailableSlots(facilityId, date) {
+  return apiGet(`/api/availability/slots?facilityId=${facilityId}&date=${date}`);
 }

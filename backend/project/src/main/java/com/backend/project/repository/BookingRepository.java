@@ -47,8 +47,15 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     );
 
     /**
-     * Find all bookings that are not cancelled.
+     * Return ALL bookings (including cancelled) ordered by date descending.
+     * Used for booking history — students/admins need to see the full record.
      */
-    @Query("SELECT b FROM Booking b WHERE b.status <> 'CANCELLED'")
-    List<Booking> findAllActive();
+    @Query("SELECT b FROM Booking b ORDER BY b.date DESC, b.startTime DESC")
+    List<Booking> findAllBookings();
+
+    /**
+     * Return all bookings for a specific student (by studentId), ordered most recent first.
+     */
+    @Query("SELECT b FROM Booking b WHERE b.studentId = :studentId ORDER BY b.date DESC, b.startTime DESC")
+    List<Booking> findByStudentId(@Param("studentId") String studentId);
 }

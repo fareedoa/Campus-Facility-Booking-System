@@ -16,8 +16,8 @@ public class BookingRequest {
     @NotNull(message = "Facility ID is required")
     private Integer facilityId;
 
-    @NotNull(message = "User ID is required")
-    private Integer userId;
+    @NotNull(message = "Student ID is required")
+    private String studentId;
 
     @NotNull(message = "Date is required")
     private LocalDate date;
@@ -27,4 +27,10 @@ public class BookingRequest {
 
     @NotNull(message = "End time is required")
     private LocalTime endTime;
+
+    // Optional — purpose/notes for the booking
+    private String notes;
+
+    // Optional — used by admin updates to change status
+    private String status;
 }

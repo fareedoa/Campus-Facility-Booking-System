@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CampusBook — University Facility Booking</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
 
   <!-- ── Stylesheets (order matters) ── -->
-  <link rel="stylesheet" href="css/variables.css"/>
-  <link rel="stylesheet" href="css/base.css"/>
-  <link rel="stylesheet" href="css/layout.css"/>
-  <link rel="stylesheet" href="css/components.css"/>
-  <link rel="stylesheet" href="css/pages.css"/>
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
 </head>
+
 <body>
 
   <!-- ── SIDEBAR NAVIGATION ── -->
@@ -40,41 +44,24 @@
       </button>
     </div>
 
-    <div class="sidebar-section">
-      <div class="sidebar-section-label">Admin</div>
-      <button class="nav-item" onclick="showPage('admin', this)">
-        <span class="nav-icon">⚙️</span><span>Manage</span>
-      </button>
-      <button class="nav-item" onclick="showPage('docs', this)">
-        <span class="nav-icon">📖</span><span>API Docs</span>
-      </button>
-    </div>
-
     <div class="sidebar-bottom">
-      <div class="user-chip">
-        <div class="user-avatar" id="userAvatar">K</div>
-        <div>
-          <div class="user-name" id="userName">Kofi Mensah</div>
-          <div class="user-role" id="userRoleLabel">Student</div>
-        </div>
-      </div>
     </div>
   </nav>
+
+  <!-- Mobile sidebar overlay (closes drawer on tap) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <!-- ── MAIN CONTENT AREA ── -->
   <div class="main">
 
     <!-- Top Bar -->
     <div class="topbar">
+      <!-- Hamburger (mobile only) -->
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
       <div class="topbar-title" id="topbarTitle">Dashboard</div>
       <div class="topbar-actions">
-        <div class="admin-toggle">
-          <span>Admin View</span>
-          <label class="toggle">
-            <input type="checkbox" id="adminToggle" onchange="toggleAdminMode()">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
         <button class="btn btn-gold" onclick="openBookingModal()">+ New Booking</button>
       </div>
     </div>
@@ -99,16 +86,6 @@
       <!-- Injected by pages/bookings.js -->
     </div>
 
-    <!-- ── PAGE: ADMIN ── -->
-    <div class="page" id="page-admin">
-      <!-- Injected by pages/admin.js -->
-    </div>
-
-    <!-- ── PAGE: API DOCS ── -->
-    <div class="page" id="page-docs">
-      <!-- Injected by pages/docs.js -->
-    </div>
-
   </div><!-- end .main -->
 
   <!-- ── MODALS ── -->
@@ -131,28 +108,23 @@
           </div>
           <div class="form-group">
             <label class="form-label">Date</label>
-            <input type="date" id="formDate" onchange="updateBookingSummary()"/>
+            <input type="date" id="formDate" onchange="updateBookingSummary()" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Start Time</label>
-            <input type="time" id="formStart" value="09:00" onchange="updateBookingSummary()"/>
+            <input type="time" id="formStart" value="09:00" onchange="autoSetEndTime(); updateBookingSummary()" />
           </div>
           <div class="form-group">
-            <label class="form-label">End Time</label>
-            <input type="time" id="formEnd" value="09:30" onchange="updateBookingSummary()"/>
+            <label class="form-label">End Time (Auto 30 min)</label>
+            <input type="time" id="formEnd" value="09:30" readonly
+              style="background-color: var(--smoke); cursor: not-allowed; color: var(--mid);" />
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input type="text" id="formName" placeholder="Your full name"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" id="formEmail" placeholder="your@email.com"/>
-          </div>
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input type="text" id="formStudentId" placeholder="e.g. 10932401" />
         </div>
         <div class="form-group">
           <label class="form-label">Purpose / Notes</label>
@@ -160,9 +132,12 @@
         </div>
         <div class="summary-box" id="bookingSummary" style="display:none;">
           <div class="summary-box-title">Booking Summary</div>
-          <div class="summary-row"><span class="summary-key">Facility</span><span class="summary-val" id="sumFacility">—</span></div>
-          <div class="summary-row"><span class="summary-key">Date</span><span class="summary-val" id="sumDate">—</span></div>
-          <div class="summary-row"><span class="summary-key">Time</span><span class="summary-val" id="sumTime">—</span></div>
+          <div class="summary-row"><span class="summary-key">Facility</span><span class="summary-val"
+              id="sumFacility">—</span></div>
+          <div class="summary-row"><span class="summary-key">Date</span><span class="summary-val" id="sumDate">—</span>
+          </div>
+          <div class="summary-row"><span class="summary-key">Time</span><span class="summary-val" id="sumTime">—</span>
+          </div>
         </div>
         <div id="formError" class="form-error" style="display:none;"></div>
       </div>
@@ -173,43 +148,53 @@
     </div>
   </div>
 
-  <!-- Add Facility Modal -->
-  <div class="modal-overlay" id="facilityModal">
-    <div class="modal">
-      <div class="modal-header">
-        <button class="modal-close" onclick="closeModal('facilityModal')">✕</button>
-        <div class="modal-title">Add Facility</div>
-        <div class="modal-sub">Register a new campus space</div>
+
+  <!-- Cancel Confirmation Dialog -->
+  <div class="modal-overlay" id="cancelDialog">
+    <div class="modal modal-sm">
+      <div class="modal-header" style="background:linear-gradient(135deg,#8b2e2e,#c0392b);">
+        <button class="modal-close" onclick="closeModal('cancelDialog')">✕</button>
+        <div class="modal-title" style="color:#fff;">Cancel Booking</div>
+        <div class="modal-sub" style="color:rgba(255,255,255,0.75);">This action cannot be undone</div>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">Facility Name</label>
-          <input type="text" id="facName" placeholder="e.g. Engineering Lecture Hall A"/>
+      <div class="modal-body" style="text-align:center;padding:28px 32px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+        <p style="font-size:15px;color:var(--ink);margin-bottom:8px;">Are you sure you want to cancel this booking?</p>
+        <div id="cancelDialogInfo"
+          style="background:var(--smoke);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--mid);text-align:left;">
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Location / Building</label>
-            <input type="text" id="facLocation" placeholder="e.g. Block C, Level 2"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Capacity</label>
-            <input type="text" id="facCapacity" placeholder="e.g. 120"/>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Type</label>
-          <select id="facType">
-            <option>Lecture Hall</option>
-            <option>Lab</option>
-            <option>Study Room</option>
-            <option>Conference</option>
-            <option>Sports</option>
-          </select>
-        </div>
+        <p style="font-size:12px;color:var(--mid);">The facility time slot will be released back to the pool.</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeModal('facilityModal')">Cancel</button>
-        <button class="btn btn-gold" onclick="submitFacility()">Add Facility</button>
+        <button class="btn btn-outline" onclick="closeModal('cancelDialog')">Keep Booking</button>
+        <button class="btn btn-danger" id="cancelDialogConfirmBtn" onclick="confirmCancelBooking()">Yes, Cancel
+          It</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <div class="modal-overlay" id="deleteDialog">
+    <div class="modal modal-sm">
+      <div class="modal-header" style="background:linear-gradient(135deg,#6b2323,#8b1a1a);">
+        <button class="modal-close" onclick="closeModal('deleteDialog')">✕</button>
+        <div class="modal-title" style="color:#fff;">Delete Booking</div>
+        <div class="modal-sub" style="color:rgba(255,255,255,0.75);">Permanently remove this record</div>
+      </div>
+      <div class="modal-body" style="text-align:center;padding:28px 32px 20px;">
+        <div style="font-size:48px;margin-bottom:16px;">🗑️</div>
+        <p style="font-size:15px;color:var(--ink);margin-bottom:8px;">Are you sure you want to permanently delete this
+          booking?</p>
+        <div id="deleteDialogInfo"
+          style="background:var(--smoke);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:13px;color:var(--mid);text-align:left;">
+        </div>
+        <p style="font-size:12px;color:var(--crimson);font-weight:600;">⚠ This record will be permanently removed and
+          cannot be restored.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('deleteDialog')">Keep Record</button>
+        <button class="btn btn-danger" id="deleteDialogConfirmBtn" onclick="confirmDeleteBooking()">Yes, Delete
+          It</button>
       </div>
     </div>
   </div>
@@ -220,33 +205,33 @@
       <div class="modal-header">
         <button class="modal-close" onclick="closeModal('editModal')">✕</button>
         <div class="modal-title">Edit Booking</div>
-        <div class="modal-sub">Update booking details</div>
+        <div class="modal-sub">Update reservation details</div>
       </div>
       <div class="modal-body">
-        <input type="hidden" id="editId"/>
+        <input type="hidden" id="editId" />
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Date</label>
-            <input type="date" id="editDate"/>
+            <input type="date" id="editDate" />
           </div>
           <div class="form-group">
             <label class="form-label">Status</label>
             <select id="editStatus">
-              <option>Confirmed</option>
-              <option>Pending</option>
-              <option>Cancelled</option>
-              <option>Completed</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="PENDING">Pending</option>
+              <option value="CANCELLED">Cancelled</option>
+              <option value="COMPLETED">Completed</option>
             </select>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Start Time</label>
-            <input type="time" id="editStart"/>
+            <input type="time" id="editStart" />
           </div>
           <div class="form-group">
             <label class="form-label">End Time</label>
-            <input type="time" id="editEnd"/>
+            <input type="time" id="editEnd" />
           </div>
         </div>
       </div>
@@ -262,7 +247,6 @@
 
   <!-- ── JavaScript (load order matters) ── -->
   <script src="js/config.js"></script>
-  <script src="js/mockdata.js"></script>
   <script src="js/api.js"></script>
   <script src="js/state.js"></script>
   <script src="js/utils.js"></script>
@@ -270,10 +254,9 @@
   <script src="pages/facilities.js"></script>
   <script src="pages/availability.js"></script>
   <script src="pages/bookings.js"></script>
-  <script src="pages/admin.js"></script>
-  <script src="pages/docs.js"></script>
   <script src="js/modals.js"></script>
   <script src="js/app.js"></script>
 
 </body>
+
 </html>

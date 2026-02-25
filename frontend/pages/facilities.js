@@ -1,35 +1,31 @@
 /*
  * pages/facilities.js
  * ─────────────────────────────────────────────────────────
- * Facilities page:
- *   buildFacilitiesHTML() - injects the static skeleton
- *   renderFacilities()    - renders the card grid with
- *                           search + type filtering applied
- *   setFilter()           - handles chip filter clicks
- *   selectFacilityAvail() - jumps to Availability page
- *   quickBook()           - opens booking modal pre-filled
- *   deleteFacility()      - admin-only delete action
+ * Facilities page.
+ *
+ * FIXED:
+ *   - Availability badge checks b.status === 'CONFIRMED' (uppercase)
+ *   - Uses b.facility?.id to match API response structure
+ *   - selectFacilityAvail() defers DOM access until after page navigation
  * ─────────────────────────────────────────────────────────
  */
 
-// ── Visual maps ─────────────────────────────────────────
-
 const FACILITY_EMOJIS = {
   'Lecture Hall': '🏛',
-  'Lab':          '🔬',
-  'Study Room':   '📚',
-  'Conference':   '🤝',
-  'Sports':       '⚽',
-  'default':      '🏢',
+  'Lab': '🔬',
+  'Study Room': '📚',
+  'Conference': '🤝',
+  'Sports': '⚽',
+  'default': '🏢',
 };
 
 const FACILITY_GRADIENTS = {
   'Lecture Hall': 'linear-gradient(135deg, #1a3d2b, #2d5a3f)',
-  'Lab':          'linear-gradient(135deg, #1a2a4a, #2d4a7a)',
-  'Study Room':   'linear-gradient(135deg, #4a2d1a, #7a4d2d)',
-  'Conference':   'linear-gradient(135deg, #2d1a4a, #5a3d7a)',
-  'Sports':       'linear-gradient(135deg, #1a4a2a, #3d7a4a)',
-  'default':      'linear-gradient(135deg, #2a2a3a, #4a4a5a)',
+  'Lab': 'linear-gradient(135deg, #1a2a4a, #2d4a7a)',
+  'Study Room': 'linear-gradient(135deg, #4a2d1a, #7a4d2d)',
+  'Conference': 'linear-gradient(135deg, #2d1a4a, #5a3d7a)',
+  'Sports': 'linear-gradient(135deg, #1a4a2a, #3d7a4a)',
+  'default': 'linear-gradient(135deg, #2a2a3a, #4a4a5a)',
 };
 
 // ════════════════════════════════════
@@ -44,10 +40,6 @@ function buildFacilitiesHTML() {
         <div class="section-title">Campus Facilities</div>
         <div class="section-sub">Browse and book available spaces</div>
       </div>
-      <button class="btn btn-primary" onclick="openAddFacilityModal()"
-        id="addFacilityBtn" style="display:none">
-        + Add Facility
-      </button>
     </div>
 
     <!-- Search bar -->
@@ -62,7 +54,7 @@ function buildFacilitiesHTML() {
 
     <!-- Type filter chips -->
     <div class="filter-chips" id="facilityFilters">
-      <div class="chip active"  onclick="setFilter('all', this)">All</div>
+      <div class="chip active"   onclick="setFilter('all', this)">All</div>
       <div class="chip" onclick="setFilter('Lecture Hall', this)">Lecture Halls</div>
       <div class="chip" onclick="setFilter('Lab', this)">Labs</div>
       <div class="chip" onclick="setFilter('Study Room', this)">Study Rooms</div>
@@ -80,9 +72,9 @@ function buildFacilitiesHTML() {
 // ════════════════════════════════════
 
 function renderFacilities() {
-  const q    = (document.getElementById('facilitySearch')?.value || '').toLowerCase();
+  const q = (document.getElementById('facilitySearch')?.value || '').toLowerCase();
   const list = facilities.filter(f => {
-    const matchText = !q || f.name.toLowerCase().includes(q) || f.location.toLowerCase().includes(q);
+    const matchText = !q || f.name.toLowerCase().includes(q) || (f.location || '').toLowerCase().includes(q);
     const matchType = currentFilter === 'all' || f.type === currentFilter;
     return matchText && matchType;
   });
@@ -104,22 +96,24 @@ function renderFacilities() {
 }
 
 function _facilityCardHTML(f) {
-  const confirmedToday = bookings.filter(
-    b => b.facility_id == f.id && b.status === 'Confirmed'
-  ).length;
+  // FIXED: use uppercase status and b.facility?.id to match API response
+  const confirmedBookings = bookings.filter(b => {
+    const fid = b.facility?.id || b.facilityId;
+    return fid == f.id && (b.status || '').toUpperCase() === 'CONFIRMED';
+  }).length;
 
-  const utilPct  = Math.min(100, Math.round((confirmedToday / 8) * 100));
-  const isAvail  = confirmedToday < 3;
+  const utilPct = Math.min(100, Math.round((confirmedBookings / 8) * 100));
+  const isAvail = confirmedBookings < 3;
   const gradient = FACILITY_GRADIENTS[f.type] || FACILITY_GRADIENTS.default;
-  const emoji    = FACILITY_EMOJIS[f.type]    || FACILITY_EMOJIS.default;
+  const emoji = FACILITY_EMOJIS[f.type] || FACILITY_EMOJIS.default;
 
   return `
-    <div class="facility-card" onclick="quickBook(${f.id})">
+    <div class="facility-card">
 
       <!-- Card image area -->
       <div class="facility-img" style="background:${gradient}">
         <span class="facility-emoji">${emoji}</span>
-        <span class="facility-tag">${f.type}</span>
+        <span class="facility-tag">${f.type || 'General'}</span>
         <span class="avail-badge ${isAvail ? 'open' : 'busy'}">
           ${isAvail ? 'Available' : 'Busy'}
         </span>
@@ -129,8 +123,8 @@ function _facilityCardHTML(f) {
       <div class="facility-body">
         <div class="facility-name">${f.name}</div>
         <div class="facility-meta">
-          <div class="facility-meta-item">📍 ${f.location}</div>
-          <div class="facility-meta-item">👥 ${f.capacity}</div>
+          <div class="facility-meta-item">📍 ${f.location || 'On Campus'}</div>
+          <div class="facility-meta-item">👥 ${f.capacity || '—'}</div>
         </div>
 
         <!-- Utilisation bar -->
@@ -141,16 +135,12 @@ function _facilityCardHTML(f) {
           ${utilPct}% utilisation today
         </div>
 
-        <!-- Action buttons (stop propagation so card click doesn't trigger) -->
-        <div style="display:flex;gap:8px;margin-top:12px;" onclick="event.stopPropagation()">
+        <!-- Action buttons -->
+        <div style="display:flex;gap:8px;margin-top:12px;">
           <button class="btn btn-primary btn-sm"
             onclick="selectFacilityAvail(${f.id})">Check Slots</button>
           <button class="btn btn-gold btn-sm"
             onclick="quickBook(${f.id})">Book Now</button>
-          ${isAdmin
-            ? `<button class="btn btn-danger btn-sm"
-                onclick="deleteFacility(${f.id})">Delete</button>`
-            : ''}
         </div>
       </div>
     </div>
@@ -172,17 +162,25 @@ function setFilter(type, el) {
 //  QUICK ACTIONS
 // ════════════════════════════════════
 
-/** Jump to Availability page with this facility pre-selected */
+/** Jump to Availability page, pre-select this facility */
 function selectFacilityAvail(id) {
-  document.getElementById('availFacility').value = id;
-  selectedDate = fmtDate(new Date());
-  showPage('availability', document.querySelector('[onclick*=availability]'));
-  setTimeout(() => { renderCalendar(); loadSlots(); }, 100);
+  // Navigate first, then populate the select — avoids race condition
+  // where availFacility select doesn't exist until page builds
+  showPage('availability', document.querySelector('.nav-item[onclick*="availability"]'));
+  setTimeout(() => {
+    const el = document.getElementById('availFacility');
+    if (el) el.value = id;
+    selectedDate = fmtDate(new Date());
+    renderCalendar();
+    loadSlots();
+  }, 50);
 }
 
 /** Open booking modal with this facility pre-selected */
 function quickBook(id) {
-  document.getElementById('formFacility').value = id;
+  const el = document.getElementById('formFacility');
+  if (el) el.value = id;
+  updateBookingSummary();
   openBookingModal();
 }
 
@@ -190,12 +188,61 @@ function quickBook(id) {
 //  ADMIN — DELETE FACILITY
 // ════════════════════════════════════
 
-async function deleteFacility(id) {
-  if (!confirm('Delete this facility? All associated bookings will also be removed.')) return;
-  await apiDeleteFacility(id);
-  facilities = facilities.filter(f => f.id != id);
-  bookings   = bookings.filter(b => b.facility_id != id);
-  populateFacilitySelects();
-  renderFacilities();
-  toast('Facility deleted', 'error');
+// Use a simple custom approach: temporarily store the pending facility ID
+// and show the existing deleteDialog with a different message
+let _pendingFacilityDeleteId = null;
+
+function deleteFacility(id) {
+  const f = facilities.find(x => x.id == id);
+  if (!f) return;
+  _pendingFacilityDeleteId = id;
+
+  // Populate the deleteDialog with facility info (re-using the booking delete dialog)
+  const infoEl = document.getElementById('deleteDialogInfo');
+  if (infoEl) {
+    infoEl.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div><strong>🏛 Facility:</strong> ${f.name}</div>
+        <div><strong>📍 Location:</strong> ${f.location || 'On Campus'}</div>
+        <div><strong>👥 Capacity:</strong> ${f.capacity || '—'}</div>
+        <div style="margin-top:8px;padding:10px;background:rgba(192,57,43,0.1);border-radius:8px;font-size:12px;color:var(--crimson);">
+          ⚠️ This will also delete all bookings for this facility.
+        </div>
+      </div>`;
+  }
+
+  // Override the confirm button to handle facility deletion
+  const confirmBtn = document.getElementById('deleteDialogConfirmBtn');
+  if (confirmBtn) {
+    // Swap handler temporarily
+    confirmBtn.onclick = confirmFacilityDelete;
+  }
+
+  document.getElementById('deleteDialog').classList.add('open');
+}
+
+async function confirmFacilityDelete() {
+  if (_pendingFacilityDeleteId === null) return;
+  const btn = document.getElementById('deleteDialogConfirmBtn');
+  btn.innerHTML = '<span class="spinner"></span> Deleting…';
+  btn.disabled = true;
+
+  try {
+    await apiDeleteFacility(_pendingFacilityDeleteId);
+    facilities = facilities.filter(f => f.id != _pendingFacilityDeleteId);
+    bookings = bookings.filter(b => (b.facility?.id || b.facilityId) != _pendingFacilityDeleteId);
+    populateFacilitySelects();
+    renderFacilities();
+    closeModal('deleteDialog');
+    toast('Facility deleted', 'error');
+    refreshAllPages();
+  } catch (err) {
+    toast(err.message || 'Delete failed', 'error');
+  } finally {
+    btn.innerHTML = 'Yes, Delete It';
+    btn.disabled = false;
+    // Restore default booking-delete handler
+    btn.onclick = confirmDeleteBooking;
+    _pendingFacilityDeleteId = null;
+  }
 }

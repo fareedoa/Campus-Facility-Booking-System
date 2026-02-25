@@ -23,9 +23,8 @@ public class Booking {
     @JoinColumn(name = "facility_id", nullable = false)
     private Facility facility;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "student_id", nullable = false, length = 50)
+    private String studentId;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -38,4 +37,7 @@ public class Booking {
 
     @Column(length = 50)
     private String status = "CONFIRMED";
+
+    @Column(length = 500)
+    private String notes;
 }

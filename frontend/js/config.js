@@ -9,10 +9,10 @@
 
 // ── Replace this URL with your deployed backend address ──
 // Examples:
-//   Local dev:   'http://localhost:3000'
+//   Local dev:   'http://localhost:8090'
 //   Render:      'https://your-app-name.onrender.com'
 //   Custom:      'https://api.yourdomain.com'
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:8090';
 
 // ── Page title map (used by the topbar) ──
 const PAGE_TITLES = {
@@ -22,13 +22,4 @@ const PAGE_TITLES = {
   bookings:     'My Bookings',
   admin:        'Admin Panel',
   docs:         'API Documentation',
-};
-
-// ── Current logged-in user (replace with real auth later) ──
-const CURRENT_USER = {
-  id:     1,
-  name:   'Kofi Mensah',
-  email:  'k.mensah@ug.edu.gh',
-  role:   'student',
-  initials: 'K',
 };

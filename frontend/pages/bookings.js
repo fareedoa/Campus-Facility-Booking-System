@@ -1,24 +1,23 @@
 /*
  * pages/bookings.js
  * ─────────────────────────────────────────────────────────
- * Booking History page:
- *   buildBookingsHTML()    - injects the static skeleton
- *   renderBookingsTable()  - populates the table with
- *                            search + status filtering
+ * Booking History page.
+ *
+ * FIXED:
+ *   - Reads b.startTime / b.endTime (camelCase, as returned by API)
+ *   - Reads b.facility?.name (not b.facility_name)
+ *   - Shows ALL statuses including CANCELLED (full booking history)
+ *   - Status comparisons use uppercase
  * ─────────────────────────────────────────────────────────
  */
-
-// ════════════════════════════════════
-//  BUILD STATIC HTML SKELETON
-// ════════════════════════════════════
 
 function buildBookingsHTML() {
   document.getElementById('page-bookings').innerHTML = `
 
     <div class="section-header">
       <div>
-        <div class="section-title">Booking History</div>
-        <div class="section-sub">All your reservations in one place</div>
+        <div class="section-title">My Bookings</div>
+        <div class="section-sub">All your campus facility reservations</div>
       </div>
       <button class="btn btn-primary" onclick="openBookingModal()">+ New Booking</button>
     </div>
@@ -28,15 +27,15 @@ function buildBookingsHTML() {
       <div class="search-input-wrap" style="flex:1">
         <span class="search-icon">🔍</span>
         <input type="text" id="bookingSearch"
-          placeholder="Search by facility or status…"
+          placeholder="Search by facility, student ID or status…"
           oninput="renderBookingsTable()"/>
       </div>
       <select id="statusFilter" onchange="renderBookingsTable()" style="width:160px;">
         <option value="">All Statuses</option>
-        <option>Confirmed</option>
-        <option>Pending</option>
-        <option>Cancelled</option>
-        <option>Completed</option>
+        <option value="CONFIRMED">Confirmed</option>
+        <option value="PENDING">Pending</option>
+        <option value="CANCELLED">Cancelled</option>
+        <option value="COMPLETED">Completed</option>
       </select>
     </div>
 
@@ -47,10 +46,11 @@ function buildBookingsHTML() {
           <thead>
             <tr>
               <th>Facility</th>
+              <th>Student ID</th>
               <th>Date</th>
               <th>Time</th>
+              <th>Notes</th>
               <th>Status</th>
-              <th>Booked By</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -71,19 +71,15 @@ function buildBookingsHTML() {
 // ════════════════════════════════════
 
 function renderBookingsTable() {
-  const q      = (document.getElementById('bookingSearch')?.value || '').toLowerCase();
-  const status = document.getElementById('statusFilter')?.value || '';
+  const q = (document.getElementById('bookingSearch')?.value || '').toLowerCase();
+  const status = (document.getElementById('statusFilter')?.value || '').toUpperCase();
 
-  // In normal mode show only current user's bookings; in admin mode show all
-  let list = isAdmin
-    ? bookings
-    : bookings.filter(b => b.user_id === CURRENT_USER.id);
-
-  // Apply search and status filters
-  list = list.filter(b => {
-    const name = (b.facility_name || getFacilityName(b.facility_id)).toLowerCase();
-    const matchQ = !q || name.includes(q) || b.status.toLowerCase().includes(q);
-    const matchS = !status || b.status === status;
+  const list = bookings.filter(b => {
+    const facName = (b.facility?.name || getFacilityName(b.facility?.id || b.facilityId)).toLowerCase();
+    const sid = (b.studentId || '').toLowerCase();
+    const bStatus = (b.status || '').toUpperCase();
+    const matchQ = !q || facName.includes(q) || sid.includes(q) || bStatus.toLowerCase().includes(q);
+    const matchS = !status || bStatus === status;
     return matchQ && matchS;
   });
 
@@ -92,32 +88,39 @@ function renderBookingsTable() {
   if (!tbody) return;
 
   if (!list.length) {
-    tbody.innerHTML    = '';
+    tbody.innerHTML = '';
     empty.style.display = '';
     return;
   }
 
   empty.style.display = 'none';
-  tbody.innerHTML     = list.map(b => _bookingRowHTML(b)).join('');
+  tbody.innerHTML = list.map(b => _bookingRowHTML(b)).join('');
 }
 
 function _bookingRowHTML(b) {
-  const facName = b.facility_name || getFacilityName(b.facility_id);
-  const badgeCls = `badge-${b.status.toLowerCase()}`;
+  // API returns camelCase: b.startTime, b.endTime, b.facility.name
+  const facName = b.facility?.name || getFacilityName(b.facility?.id || b.facilityId);
+  const bStatus = (b.status || 'CONFIRMED').toUpperCase();
+  const badgeCls = `badge-${bStatus.toLowerCase()}`;
+  const st = b.startTime || b.start_time || '—';
+  const et = b.endTime || b.end_time || '—';
+  const notes = b.notes ? `<span title="${b.notes}" style="color:var(--mid);font-size:12px;">${b.notes.substring(0, 30)}${b.notes.length > 30 ? '…' : ''}</span>` : '<span style="color:var(--mid);font-size:12px;">—</span>';
+
+  // Students can cancel CONFIRMED or PENDING bookings
+  const canCancel = bStatus === 'CONFIRMED' || bStatus === 'PENDING';
+  const actionsHTML = canCancel
+    ? `<button class="btn btn-danger btn-sm" onclick="openCancelDialog(${b.id})">Cancel</button>`
+    : `<span style="font-size:12px;color:var(--mid);font-style:italic;">${bStatus === 'CANCELLED' ? 'Cancelled' : '—'}</span>`;
 
   return `
     <tr>
       <td><strong>${facName}</strong></td>
-      <td>${b.date}</td>
-      <td>${b.start_time} – ${b.end_time}</td>
-      <td><span class="badge ${badgeCls}">${b.status}</span></td>
-      <td>${b.user_name || 'You'}</td>
-      <td>
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-outline btn-sm" onclick="openEditModal(${b.id})">Edit</button>
-          <button class="btn btn-danger btn-sm"  onclick="cancelBooking(${b.id})">Cancel</button>
-        </div>
-      </td>
+      <td><code style="background:var(--smoke);padding:2px 6px;border-radius:4px;font-size:12px;">${b.studentId || '—'}</code></td>
+      <td>${b.date || '—'}</td>
+      <td>${st} – ${et}</td>
+      <td>${notes}</td>
+      <td><span class="badge ${badgeCls}">${bStatus}</span></td>
+      <td>${actionsHTML}</td>
     </tr>
   `;
 }

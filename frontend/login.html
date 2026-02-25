@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusBook — Sign In</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--ink) 0%, #1a2f1e 50%, #0d1a1f 100%);
+      padding: 24px;
+    }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .login-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .login-logo .logo-mark {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), #f5dfa0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    .login-logo .logo-sub {
+      font-size: 13px;
+      color: var(--mid);
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .login-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 36px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .login-sub {
+      font-size: 13px;
+      color: var(--mid);
+      margin-bottom: 28px;
+    }
+
+    .login-card .form-group {
+      margin-bottom: 18px;
+    }
+
+    .login-card label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mid);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .login-card input:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    .login-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(198, 160, 78, 0.12);
+      border: 1px solid rgba(198, 160, 78, 0.25);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--gold), #d4a843);
+      color: var(--ink);
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .login-btn:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-error {
+      background: rgba(180, 50, 50, 0.15);
+      border: 1px solid rgba(180, 50, 50, 0.35);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #e07070;
+      margin-top: 14px;
+      display: none;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--gold);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      border-top-color: var(--ink);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="logo-mark">CampusBook</div>
+      <div class="logo-sub">UG Facility Booking Portal</div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-badge">🎓 Campus Portal</div>
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Sign in to the CampusBook portal</div>
+
+      <div class="form-group">
+        <label for="loginUsername">Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter your username" autocomplete="username" />
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password" />
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+
+    <!-- First-time setup toggle -->
+    <div style="text-align:center;margin-top:18px;">
+      <button onclick="toggleSetup()"
+        style="background:none;border:none;color:var(--mid);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s;"
+        id="setupToggleBtn">
+        First time? Create an admin account ↓
+      </button>
+    </div>
+
+    <!-- Setup / Register card (hidden by default) -->
+    <div id="setupCard" class="login-card" style="display:none;margin-top:16px;">
+      <div class="login-badge" style="background:rgba(80,160,100,.12);border-color:rgba(80,160,100,.25);color:#6fcf97;">
+        ✦ First-Time Setup</div>
+      <div class="login-title" style="font-size:18px;">Create Admin Account</div>
+      <div class="login-sub">Register your first administrator</div>
+
+      <div class="form-group">
+        <label for="setupName">Full Name</label>
+        <input type="text" id="setupName" placeholder="e.g. Dr. Kweku Boateng" />
+      </div>
+      <div class="form-group">
+        <label for="setupUsername">Username</label>
+        <input type="text" id="setupUsername" placeholder="e.g. admin" />
+      </div>
+      <div class="form-group">
+        <label for="setupEmail">Email</label>
+        <input type="email" id="setupEmail" placeholder="admin@ug.edu.gh" />
+      </div>
+      <div class="form-group">
+        <label for="setupPassword">Password</label>
+        <input type="password" id="setupPassword" placeholder="Min. 6 characters" />
+      </div>
+
+      <div class="login-error" id="setupError" style="margin-top:0;margin-bottom:12px;"></div>
+      <div id="setupSuccess"
+        style="display:none;background:rgba(40,140,70,.15);border:1px solid rgba(40,140,70,.35);border-radius:8px;padding:10px 14px;font-size:13px;color:#6fcf97;margin-bottom:12px;">
+      </div>
+
+      <button class="login-btn" id="setupBtn" onclick="doSetup()"
+        style="background:linear-gradient(135deg,#3a9a5c,#2d7a46);">
+        Create & Sign In
+      </button>
+    </div>
+
+    <a class="back-link" href="index.html">← Back to Student Portal</a>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    // Allow Enter key to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const setupOpen = document.getElementById('setupCard').style.display !== 'none';
+        if (setupOpen) doSetup(); else doLogin();
+      }
+    });
+
+    // If already logged in, redirect appropriately
+    (function () {
+      const token = localStorage.getItem('adminToken');
+      const user = JSON.parse(localStorage.getItem('adminUser') || 'null');
+      if (token && user) {
+        window.location.href = user.role === 'ADMIN' ? 'admin.html' : 'index.html';
+      }
+    })();
+
+    // ── Toggle first-time setup panel ──────────────────────
+    function toggleSetup() {
+      const card = document.getElementById('setupCard');
+      const btn = document.getElementById('setupToggleBtn');
+      const open = card.style.display !== 'none';
+      card.style.display = open ? 'none' : '';
+      btn.textContent = open
+        ? 'First time? Create an admin account ↓'
+        : 'Already have an account? Sign in ↑';
+    }
+
+    // ── Register new admin then auto-login ─────────────────
+    async function doSetup() {
+      const name = document.getElementById('setupName').value.trim();
+      const username = document.getElementById('setupUsername').value.trim();
+      const email = document.getElementById('setupEmail').value.trim();
+      const password = document.getElementById('setupPassword').value;
+      const errEl = document.getElementById('setupError');
+      const okEl = document.getElementById('setupSuccess');
+      const btn = document.getElementById('setupBtn');
+
+      errEl.style.display = 'none';
+      okEl.style.display = 'none';
+
+      if (!name || !username || !email || !password) {
+        errEl.textContent = 'Please fill in all fields.';
+        errEl.style.display = '';
+        return;
+      }
+      if (password.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.';
+        errEl.style.display = '';
+        return;
+      }
+
+      btn.innerHTML = '<span class="spinner"></span> Creating account…';
+      btn.disabled = true;
+
+      try {
+        // 1 — Register
+        const regRes = await fetch(BASE_URL + '/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, username, email, password, role: 'ADMIN' }),
+        });
+
+        if (!regRes.ok) {
+          const d = await regRes.json().catch(() => ({}));
+          errEl.textContent = d.message || 'Registration failed. Username or email may already exist.';
+          errEl.style.display = '';
+          btn.innerHTML = 'Create & Sign In';
+          btn.disabled = false;
+          return;
+        }
+
+        okEl.textContent = '✓ Account created! Signing you in…';
+        okEl.style.display = '';
+
+        // 2 — Auto-login
+        const loginRes = await fetch(BASE_URL + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const loginData = await loginRes.json();
+
+        if (!loginRes.ok) {
+          okEl.textContent = '✓ Account created! Please sign in above.';
+          btn.innerHTML = 'Create & Sign In';
+          btn.disabled = false;
+          toggleSetup(); // close setup, open login
+          return;
+        }
+
+        // Store token and user under both key sets for compatibility
+        localStorage.setItem('adminToken', loginData.token);
+        localStorage.setItem('adminUser', JSON.stringify(loginData.user));
+        window.location.href = 'admin.html'; // setup is admin-only
+
+      } catch (err) {
+        errEl.textContent = 'Cannot connect to server. Is the backend running?';
+        errEl.style.display = '';
+        btn.innerHTML = 'Create & Sign In';
+        btn.disabled = false;
+      }
+    }
+
+    async function doLogin() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errEl = document.getElementById('loginError');
+      const btn = document.getElementById('loginBtn');
+
+      errEl.style.display = 'none';
+
+      if (!username || !password) {
+        errEl.textContent = 'Please enter both username and password.';
+        errEl.style.display = '';
+        return;
+      }
+
+      btn.innerHTML = '<span class="spinner"></span> Signing in…';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(BASE_URL + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          errEl.textContent = data.message || 'Invalid username or password.';
+          errEl.style.display = '';
+          btn.innerHTML = 'Sign In';
+          btn.disabled = false;
+          return;
+        }
+
+        // Store token and user — shared key used by app.js auth guard
+        localStorage.setItem('adminToken', data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
+
+        // Redirect based on role
+        const role = data.user?.role || 'STUDENT';
+        window.location.href = role === 'ADMIN' ? 'admin.html' : 'index.html';
+
+      } catch (err) {
+        errEl.textContent = 'Cannot connect to server. Is the backend running?';
+        errEl.style.display = '';
+        btn.innerHTML = 'Sign In';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+
+</html>

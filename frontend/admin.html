@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal — CampusBook</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/pages.css" />
+</head>
+
+<body>
+
+  <!-- ── SIDEBAR NAVIGATION ── -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">CampusBook</div>
+      <div class="logo-sub">Admin Portal</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <button class="nav-item active" onclick="showAdminPage('dashboard', this)">
+        <span class="nav-icon">⊞</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="showAdminPage('facilities', this)">
+        <span class="nav-icon">🏛</span><span>Facilities</span>
+      </button>
+      <button class="nav-item" onclick="showAdminPage('bookings', this)">
+        <span class="nav-icon">📋</span><span>All Bookings</span>
+      </button>
+      <button class="nav-item" onclick="showAdminPage('register', this)">
+        <span class="nav-icon">➕</span><span>Register User</span>
+      </button>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="adminAvatar">A</div>
+        <div>
+          <div class="user-name" id="adminName">Administrator</div>
+          <div class="user-role">Admin</div>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:10px;" onclick="adminLogout()">
+        🚪 Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="adminSidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- ── MAIN CONTENT AREA ── -->
+  <div class="main">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-title" id="adminTopbarTitle">Dashboard</div>
+      <div class="topbar-actions">
+        <span
+          style="font-size:12px;color:var(--mid);padding:6px 12px;background:rgba(198,160,78,.1);border:1px solid rgba(198,160,78,.2);border-radius:20px;">
+          🔐 Admin Session
+        </span>
+      </div>
+    </div>
+
+    <!-- ── PAGE: DASHBOARD ── -->
+    <div class="page active" id="admin-page-dashboard"></div>
+
+    <!-- ── PAGE: FACILITIES ── -->
+    <div class="page" id="admin-page-facilities"></div>
+
+    <!-- ── PAGE: BOOKINGS ── -->
+    <div class="page" id="admin-page-bookings"></div>
+
+    <!-- ── PAGE: REGISTER ── -->
+    <div class="page" id="admin-page-register"></div>
+
+  </div><!-- end .main -->
+
+  <!-- ── MODALS ── -->
+
+  <!-- Add Facility Modal -->
+  <div class="modal-overlay" id="adminFacilityModal">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeAdminModal('adminFacilityModal')">✕</button>
+        <div class="modal-title" id="facilityModalTitle">Add Facility</div>
+        <div class="modal-sub">Register a new campus space</div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editFacilityId" />
+        <div class="form-group">
+          <label class="form-label">Facility Name</label>
+          <input type="text" id="facName" placeholder="e.g. Engineering Lecture Hall A" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Location / Building</label>
+            <input type="text" id="facLocation" placeholder="e.g. Block C, Level 2" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacity</label>
+            <input type="number" id="facCapacity" placeholder="e.g. 120" min="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select id="facType">
+            <option>Lecture Hall</option>
+            <option>Lab</option>
+            <option>Study Room</option>
+            <option>Conference</option>
+            <option>Sports</option>
+          </select>
+        </div>
+        <div id="facError" class="form-error" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeAdminModal('adminFacilityModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="submitAdminFacility()" id="facSubmitBtn">Add Facility</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Booking Modal -->
+  <div class="modal-overlay" id="adminEditModal">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="modal-close" onclick="closeAdminModal('adminEditModal')">✕</button>
+        <div class="modal-title">Edit Booking</div>
+        <div class="modal-sub">Update booking details</div>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="adminEditId" />
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input type="text" id="adminEditStudentId" placeholder="e.g. 10932401" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="adminEditDate" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="adminEditStatus">
+              <option>CONFIRMED</option>
+              <option>PENDING</option>
+              <option>CANCELLED</option>
+              <option>COMPLETED</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Start Time</label>
+            <input type="time" id="adminEditStart" onchange="adminAutoSetEndTime()" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">End Time (Auto 30 min)</label>
+            <input type="time" id="adminEditEnd" readonly
+              style="background-color: var(--smoke); cursor: not-allowed; color: var(--mid);" />
+          </div>
+        </div>
+        <div id="adminEditError" class="form-error" style="display:none; margin-top:12px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeAdminModal('adminEditModal')">Cancel</button>
+        <button class="btn btn-gold" onclick="submitAdminEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay" id="adminConfirmModal">
+    <div class="modal" style="width:400px;text-align:center;padding:24px;">
+      <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+      <div class="modal-title" id="confirmModalTitle" style="font-size: 20px;">Are you sure?</div>
+      <div class="modal-sub" id="confirmModalMessage" style="margin-bottom:28px; line-height: 1.5; font-size: 14px;">
+        This action cannot be undone.</div>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button class="btn btn-outline" onclick="closeAdminModal('adminConfirmModal')"
+          style="flex:1; justify-content: center;">Cancel</button>
+        <button class="btn btn-danger" id="confirmModalBtn" style="flex:1; justify-content: center;">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ── JavaScript ── -->
+  <script src="js/config.js"></script>
+  <script src="js/admin-auth.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+
+    // ══ Shared state ══════════════════════════════════════
+    let adminFacilities = [];
+    let adminBookings = [];
+
+    // ══ Auth guard ════════════════════════════════════════
+    const _token = checkAdminAuth();
+    if (_token) {
+      const u = getAdminUser();
+      if (u.username) {
+        document.getElementById('adminName').textContent = u.name || u.username;
+        document.getElementById('adminAvatar').textContent = (u.name || u.username).charAt(0).toUpperCase();
+      }
+    }
+
+    // ══ Modal helpers ═════════════════════════════════════
+    function closeAdminModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+    window.addEventListener('click', e => {
+      if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+    });
+
+    let pendingConfirmCallback = null;
+    function showAdminConfirm(title, message, btnText, callback) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      const btn = document.getElementById('confirmModalBtn');
+      btn.textContent = btnText;
+      pendingConfirmCallback = callback;
+      btn.onclick = () => {
+        closeAdminModal('adminConfirmModal');
+        if (pendingConfirmCallback) pendingConfirmCallback();
+        pendingConfirmCallback = null;
+      };
+      document.getElementById('adminConfirmModal').classList.add('open');
+    }
+
+    // ══ Navigation ════════════════════════════════════════
+    const PAGE_TITLES_ADMIN = {
+      dashboard: 'Dashboard',
+      facilities: 'Facility Management',
+      bookings: 'All Bookings',
+      register: 'Register User',
+    };
+
+    function showAdminPage(id, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const page = document.getElementById('admin-page-' + id);
+      if (page) page.classList.add('active');
+      // btn may be null when called programmatically — find the right nav-item if so
+      const activeBtn = btn || document.querySelector(`.nav-item[onclick*="'${id}'"]`);
+      if (activeBtn) activeBtn.classList.add('active');
+      document.getElementById('adminTopbarTitle').textContent = PAGE_TITLES_ADMIN[id] || id;
+      // Close mobile drawer after navigation
+      closeSidebar();
+    }
+
+    // ══ Mobile Sidebar drawer ══════════════════════════════
+    function toggleSidebar() { document.body.classList.toggle('sidebar-open'); }
+    function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+
+    // ══ Toast ═════════════════════════════════════════════
+    function toast(msg, type = 'success') {
+      const c = document.getElementById('toastContainer');
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.textContent = msg;
+      c.appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3200);
+    }
+
+    // ══ Dashboard ═════════════════════════════════════════
+    function buildDashboard() {
+      const total = adminBookings.length;
+      const confirmed = adminBookings.filter(b => b.status === 'CONFIRMED').length;
+      const cancelled = adminBookings.filter(b => b.status === 'CANCELLED').length;
+      const facilities = adminFacilities.length;
+
+      document.getElementById('admin-page-dashboard').innerHTML = `
+        <div class="section-header">
+          <div>
+            <div class="section-title">Admin Dashboard</div>
+            <div class="section-sub">Overview of the booking system</div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;">
+          ${statCard('Total Bookings', total, '📋', 'var(--gold)')}
+          ${statCard('Confirmed', confirmed, '✅', 'var(--forest)')}
+          ${statCard('Cancelled', cancelled, '❌', 'var(--crimson)')}
+          ${statCard('Facilities', facilities, '🏛', 'var(--sage)')}
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">Booking Status Breakdown</div>
+              <button class="btn btn-outline btn-sm" onclick="refreshAdminData()">↺ Refresh</button>
+            </div>
+            <div class="card-body" id="dashStatusBars"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-title">Facility Utilisation</div>
+            </div>
+            <div class="card-body" id="dashUtilBars"></div>
+          </div>
+        </div>
+      `;
+      renderDashboardBars();
+    }
+
+    function statCard(label, value, icon, color) {
+      return `
+        <div class="card" style="padding:20px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:24px;">${icon}</div>
+            <div>
+              <div style="font-size:26px;font-weight:700;color:${color};">${value}</div>
+              <div style="font-size:12px;color:var(--mid);margin-top:2px;">${label}</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderDashboardBars() {
+      const statusEl = document.getElementById('dashStatusBars');
+      const utilEl = document.getElementById('dashUtilBars');
+      if (!statusEl || !utilEl) return;
+
+      const counts = { CONFIRMED: 0, PENDING: 0, CANCELLED: 0, COMPLETED: 0 };
+      adminBookings.forEach(b => { if (counts[b.status] !== undefined) counts[b.status]++; });
+      const total = adminBookings.length || 1;
+      const barColors = { CONFIRMED: 'var(--forest)', PENDING: 'var(--gold)', CANCELLED: 'var(--crimson)', COMPLETED: 'var(--sage)' };
+
+      statusEl.innerHTML = Object.entries(counts).map(([s, c]) => `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+            <span style="font-weight:600">${s}</span><span style="color:var(--mid)">${c}</span>
+          </div>
+          <div style="height:6px;background:var(--smoke);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;border-radius:4px;background:${barColors[s]};width:${Math.round((c / total) * 100)}%;transition:width .5s;"></div>
+          </div>
+        </div>`).join('');
+
+      const util = adminFacilities.map(f => ({
+        name: f.name.split(' ').slice(0, 3).join(' '),
+        pct: Math.min(100, adminBookings.filter(b => (b.facility?.id || b.facilityId) == f.id && b.status === 'CONFIRMED').length * 12),
+      })).sort((a, b) => b.pct - a.pct).slice(0, 5);
+
+      utilEl.innerHTML = util.map(u => `
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+            <span>${u.name}</span><span style="color:var(--mid)">${u.pct}%</span>
+          </div>
+          <div style="height:5px;background:var(--smoke);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--forest),var(--sage));width:${u.pct}%;transition:width .5s;"></div>
+          </div>
+        </div>`).join('') || '<p style="color:var(--mid);font-size:13px;">No data yet</p>';
+    }
+
+    // ══ Facilities Page ═══════════════════════════════════
+    function buildFacilitiesPage() {
+      document.getElementById('admin-page-facilities').innerHTML = `
+        <div class="section-header">
+          <div>
+            <div class="section-title">Facility Management</div>
+            <div class="section-sub">Add, edit, or remove campus facilities</div>
+          </div>
+          <button class="btn btn-gold" onclick="openAddFacilityModal()">+ Add Facility</button>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-title">All Facilities (${adminFacilities.length})</div>
+            <button class="btn btn-outline btn-sm" onclick="refreshAdminData()">↺ Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Capacity</th>
+                  <th>Bookings</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminFacilitiesTable"></tbody>
+            </table>
+          </div>
+        </div>`;
+      renderFacilitiesTable();
+    }
+
+    function renderFacilitiesTable() {
+      const tbody = document.getElementById('adminFacilitiesTable');
+      if (!tbody) return;
+      if (!adminFacilities.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mid);">No facilities yet. Click "Add Facility" to get started.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = adminFacilities.map(f => {
+        const bookCount = adminBookings.filter(b => (b.facility?.id || b.facilityId) == f.id).length;
+        const typeEmoji = {
+          'Lecture Hall': '🏛', 'Lab': '🔬', 'Study Room': '📚',
+          'Conference': '🤝', 'Sports': '⚽'
+        }[f.type] || '🏢';
+        return `
+          <tr>
+            <td style="color:var(--mid);font-size:12px;">#${f.id}</td>
+            <td><strong>${f.name}</strong></td>
+            <td><span class="badge" style="background:rgba(198,160,78,.15);color:var(--gold);border:none;">${typeEmoji} ${f.type || '—'}</span></td>
+            <td style="color:var(--mid);">📍 ${f.location}</td>
+            <td>👥 ${f.capacity}</td>
+            <td><span style="font-weight:600;">${bookCount}</span></td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" onclick="openEditFacilityModal(${f.id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="adminDeleteFacility(${f.id})">Delete</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function openAddFacilityModal() {
+      document.getElementById('facilityModalTitle').textContent = 'Add Facility';
+      document.getElementById('facSubmitBtn').textContent = 'Add Facility';
+      document.getElementById('editFacilityId').value = '';
+      ['facName', 'facLocation', 'facCapacity'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('facType').value = 'Lecture Hall';
+      document.getElementById('facError').style.display = 'none';
+      document.getElementById('adminFacilityModal').classList.add('open');
+    }
+
+    function openEditFacilityModal(id) {
+      const f = adminFacilities.find(x => x.id == id);
+      if (!f) return;
+      document.getElementById('facilityModalTitle').textContent = 'Edit Facility';
+      document.getElementById('facSubmitBtn').textContent = 'Save Changes';
+      document.getElementById('editFacilityId').value = f.id;
+      document.getElementById('facName').value = f.name;
+      document.getElementById('facLocation').value = f.location;
+      document.getElementById('facCapacity').value = f.capacity;
+      document.getElementById('facType').value = f.type || 'Lecture Hall';
+      document.getElementById('facError').style.display = 'none';
+      document.getElementById('adminFacilityModal').classList.add('open');
+    }
+
+    async function submitAdminFacility() {
+      const editId = document.getElementById('editFacilityId').value;
+      const name = document.getElementById('facName').value.trim();
+      const location = document.getElementById('facLocation').value.trim();
+      const capacity = document.getElementById('facCapacity').value.trim();
+      const type = document.getElementById('facType').value;
+      const errEl = document.getElementById('facError');
+      const btn = document.getElementById('facSubmitBtn');
+
+      if (!name || !location || !capacity) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.style.display = '';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      const payload = { name, location, capacity: parseInt(capacity), type };
+      let result;
+
+      if (editId) {
+        result = await adminPut(`/api/facilities/${editId}`, payload);
+        if (result) {
+          const idx = adminFacilities.findIndex(f => f.id == editId);
+          if (idx > -1) adminFacilities[idx] = result;
+          toast(`Facility "${name}" updated`, 'success');
+        }
+      } else {
+        result = await adminPost('/api/facilities', payload);
+        if (result) {
+          adminFacilities.push(result);
+          toast(`Facility "${name}" added`, 'success');
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = editId ? 'Save Changes' : 'Add Facility';
+
+      if (result) {
+        closeAdminModal('adminFacilityModal');
+        buildFacilitiesPage();
+        buildDashboard();
+      } else {
+        errEl.textContent = 'Failed to save facility. Check the server.';
+        errEl.style.display = '';
+      }
+    }
+
+    function adminDeleteFacility(id) {
+      const f = adminFacilities.find(x => x.id == id);
+      showAdminConfirm(
+        'Delete Facility',
+        `Delete "${f?.name || 'this facility'}"? All associated bookings will also be removed.`,
+        'Delete',
+        async () => {
+          const ok = await adminDelete(`/api/facilities/${id}`);
+          if (ok !== null) {
+            adminFacilities = adminFacilities.filter(x => x.id != id);
+            adminBookings = adminBookings.filter(b => (b.facility?.id || b.facilityId) != id);
+            toast('Facility deleted', 'error');
+            buildFacilitiesPage();
+            buildDashboard();
+          } else {
+            toast('Failed to delete facility', 'error');
+          }
+        }
+      );
+    }
+
+    // ══ Bookings Page ═════════════════════════════════════
+    function buildBookingsPage() {
+      document.getElementById('admin-page-bookings').innerHTML = `
+        <div class="section-header">
+          <div>
+            <div class="section-title">All Bookings</div>
+            <div class="section-sub">View and manage every booking</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="refreshAdminData()">↺ Refresh</button>
+        </div>
+        <div class="search-bar" style="margin-bottom:16px;">
+          <div class="search-input-wrap" style="flex:1">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="adminBookingSearch" placeholder="Search by facility or student ID…" oninput="renderAdminBookingsTable()"/>
+          </div>
+          <select id="adminStatusFilter" onchange="renderAdminBookingsTable()" style="width:160px;">
+            <option value="">All Statuses</option>
+            <option>CONFIRMED</option>
+            <option>PENDING</option>
+            <option>CANCELLED</option>
+            <option>COMPLETED</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Facility</th>
+                  <th>Student ID</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminBookingsBody"></tbody>
+            </table>
+          </div>
+        </div>`;
+      renderAdminBookingsTable();
+    }
+
+    function getFacilityName(id) {
+      return adminFacilities.find(f => f.id == id)?.name || `Facility #${id}`;
+    }
+
+    function renderAdminBookingsTable() {
+      const tbody = document.getElementById('adminBookingsBody');
+      if (!tbody) return;
+      const q = (document.getElementById('adminBookingSearch')?.value || '').toLowerCase();
+      const status = document.getElementById('adminStatusFilter')?.value || '';
+
+      let list = adminBookings.filter(b => {
+        const facName = (b.facility?.name || getFacilityName(b.facility?.id || b.facilityId)).toLowerCase();
+        const sid = (b.studentId || '').toLowerCase();
+        const matchQ = !q || facName.includes(q) || sid.includes(q);
+        const matchS = !status || b.status === status;
+        return matchQ && matchS;
+      });
+
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No bookings found</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = list.map(b => {
+        const facName = b.facility?.name || getFacilityName(b.facility?.id || b.facilityId);
+        const badgeCls = `badge-${(b.status || 'confirmed').toLowerCase()}`;
+        const st = b.startTime || b.start_time || '';
+        const et = b.endTime || b.end_time || '';
+        return `
+          <tr>
+            <td><strong>${facName}</strong></td>
+            <td><code style="background:var(--smoke);padding:2px 6px;border-radius:4px;font-size:12px;">${b.studentId || '—'}</code></td>
+            <td>${b.date || '—'}</td>
+            <td>${st} – ${et}</td>
+            <td><span class="badge ${badgeCls}">${b.status}</span></td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm" onclick="openAdminEditModal(${b.id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="adminCancelBooking(${b.id})">Cancel</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function openAdminEditModal(id) {
+      const errEl = document.getElementById('adminEditError');
+      if (errEl) errEl.style.display = 'none';
+
+      const b = adminBookings.find(x => x.id == id);
+      if (!b) return;
+      document.getElementById('adminEditId').value = id;
+      document.getElementById('adminEditStudentId').value = b.studentId || '';
+      document.getElementById('adminEditDate').value = b.date || '';
+      document.getElementById('adminEditStart').value = b.startTime || b.start_time || '';
+      document.getElementById('adminEditEnd').value = b.endTime || b.end_time || '';
+      document.getElementById('adminEditStatus').value = b.status || 'CONFIRMED';
+      document.getElementById('adminEditModal').classList.add('open');
+    }
+
+    function adminAutoSetEndTime() {
+      const startInput = document.getElementById('adminEditStart');
+      const endInput = document.getElementById('adminEditEnd');
+      if (!startInput.value) return;
+
+      const [h, m] = startInput.value.split(':').map(Number);
+      const d = new Date();
+      d.setHours(h, m + 30, 0);
+      const eh = String(d.getHours()).padStart(2, '0');
+      const em = String(d.getMinutes()).padStart(2, '0');
+      endInput.value = `${eh}:${em}`;
+    }
+
+    async function submitAdminEdit() {
+      const id = parseInt(document.getElementById('adminEditId').value);
+      const studentId = document.getElementById('adminEditStudentId').value.trim();
+      const date = document.getElementById('adminEditDate').value;
+      const start = document.getElementById('adminEditStart').value;
+      const end = document.getElementById('adminEditEnd').value;
+      const status = document.getElementById('adminEditStatus').value;
+
+      const b = adminBookings.find(x => x.id == id);
+      if (!b) return;
+
+      const errEl = document.getElementById('adminEditError');
+      errEl.style.display = 'none';
+
+      if (!date || !start || !end) {
+        errEl.textContent = 'Please fill out all date/time fields.';
+        errEl.style.display = '';
+        return;
+      }
+
+      // ── Past-time validation ──
+      // Note: Only enforce strict past-time check if status is PENDING or CONFIRMED
+      // (Admins might be editing a COMPLETED or CANCELLED booking in the past)
+      if (status === 'PENDING' || status === 'CONFIRMED') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+        const [sh, sm] = start.split(':').map(Number);
+        const startMins = sh * 60 + sm;
+
+        if (date < todayStr) {
+          errEl.textContent = 'Cannot set active bookings to a past date.';
+          errEl.style.display = '';
+          return;
+        }
+        if (date === todayStr && startMins <= nowMinutes) {
+          errEl.textContent = `The time entry ${start} has already passed today.`;
+          errEl.style.display = '';
+          return;
+        }
+      }
+
+      // ── Operating hours: 06:00 – 19:00 ──
+      const OPEN_MINUTES = 6 * 60;   // 06:00
+      const CLOSE_MINUTES = 19 * 60;  // 19:00
+      const [sh, sm] = start.split(':').map(Number);
+      const startMins = sh * 60 + sm;
+      const [eh, em] = end.split(':').map(Number);
+      const endMins = eh * 60 + em;
+
+      if (startMins < OPEN_MINUTES) {
+        errEl.textContent = 'Bookings cannot start before 6:00 AM. Campus opens at 6:00 AM.';
+        errEl.style.display = '';
+        return;
+      }
+      if (endMins > CLOSE_MINUTES) {
+        errEl.textContent = 'Bookings cannot end after 7:00 PM. Campus closes at 7:00 PM.';
+        errEl.style.display = '';
+        return;
+      }
+
+      // time strings from <input type="time"> are HH:mm — append :00 for clean Spring Boot LocalTime
+      const formattedStart = start.length === 5 ? `${start}:00` : start;
+      const formattedEnd = end.length === 5 ? `${end}:00` : end;
+
+      const payload = {
+        facilityId: b.facility?.id || parseInt(b.facilityId),
+        studentId,
+        date,
+        startTime: formattedStart,
+        endTime: formattedEnd,
+        status,
+        notes: b.notes || ""
+      };
+
+      const result = await adminPut(`/api/bookings/${id}`, payload);
+      const idx = adminBookings.findIndex(x => x.id == id);
+      if (idx > -1) adminBookings[idx] = result || { ...adminBookings[idx], studentId, date, startTime: formattedStart, endTime: formattedEnd, status, notes: b.notes || "" };
+
+      closeAdminModal('adminEditModal');
+      toast('Booking updated successfully', 'success');
+      renderAdminBookingsTable();
+      buildDashboard();
+    }
+
+    function adminCancelBooking(id) {
+      showAdminConfirm(
+        'Cancel Booking',
+        'Cancel this booking? This action cannot be undone.',
+        'Cancel Booking',
+        async () => {
+          await adminDelete(`/api/bookings/${id}`);
+          const idx = adminBookings.findIndex(x => x.id == id);
+          if (idx > -1) adminBookings[idx].status = 'CANCELLED';
+          toast('Booking cancelled', 'error');
+          renderAdminBookingsTable();
+          buildDashboard();
+        }
+      );
+    }
+
+    // ══ Data loading ═════════════════════════════════════
+    async function refreshAdminData() {
+      const [facs, books] = await Promise.all([
+        adminGet('/api/facilities'),
+        adminGet('/api/bookings'),
+      ]);
+      adminFacilities = facs || adminFacilities;
+      adminBookings = books || adminBookings;
+
+      // Re-render whichever page is active
+      const active = document.querySelector('.page.active');
+      if (active?.id === 'admin-page-dashboard') buildDashboard();
+      if (active?.id === 'admin-page-facilities') buildFacilitiesPage();
+      if (active?.id === 'admin-page-bookings') buildBookingsPage();
+
+      toast('Data refreshed', 'success');
+    }
+
+    // ══ Register Page ══════════════════════════════════════
+    function buildRegisterPage() {
+      document.getElementById('admin-page-register').innerHTML = `
+        <div class="section-header">
+          <div>
+            <div class="section-title">Register User</div>
+            <div class="section-sub">Create a new admin or student account</div>
+          </div>
+        </div>
+
+        <div style="max-width:520px;">
+          <div class="card" style="padding:32px;">
+
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="regName" placeholder="e.g. Kofi Mensah"/>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" id="regUsername" placeholder="e.g. kofi.mensah"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role</label>
+                <select id="regRole">
+                  <option value="STUDENT">Student</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" id="regEmail" placeholder="e.g. kofi@ug.edu.gh"/>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" id="regPassword" placeholder="Min. 6 characters"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input type="password" id="regConfirm" placeholder="Repeat password"/>
+              </div>
+            </div>
+
+            <div id="regError" style="display:none;background:rgba(180,50,50,.15);border:1px solid rgba(180,50,50,.35);border-radius:8px;padding:10px 14px;font-size:13px;color:#e07070;margin-bottom:16px;"></div>
+            <div id="regSuccess" style="display:none;background:rgba(40,140,70,.15);border:1px solid rgba(40,140,70,.35);border-radius:8px;padding:10px 14px;font-size:13px;color:#6fcf97;margin-bottom:16px;"></div>
+
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-gold" onclick="submitRegister()" id="regSubmitBtn" style="flex:1;">Create Account</button>
+              <button class="btn btn-outline" onclick="resetRegisterForm()">Clear</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitRegister() {
+      const name = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+      const role = document.getElementById('regRole').value;
+      const errEl = document.getElementById('regError');
+      const okEl = document.getElementById('regSuccess');
+      const btn = document.getElementById('regSubmitBtn');
+
+      errEl.style.display = 'none';
+      okEl.style.display = 'none';
+
+      // Validation
+      if (!name || !username || !email || !password) {
+        errEl.textContent = 'Please fill in all fields.';
+        errEl.style.display = '';
+        return;
+      }
+      if (password.length < 6) {
+        errEl.textContent = 'Password must be at least 6 characters.';
+        errEl.style.display = '';
+        return;
+      }
+      if (password !== confirm) {
+        errEl.textContent = 'Passwords do not match.';
+        errEl.style.display = '';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Creating…';
+
+      const result = await adminPost('/api/auth/register', { name, username, email, password, role });
+
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+
+      if (result) {
+        okEl.textContent = `✓ Account "${username}" created successfully as ${role}.`;
+        okEl.style.display = '';
+        resetRegisterForm();
+        toast(`User "${username}" registered`, 'success');
+      } else {
+        errEl.textContent = 'Registration failed. The username or email may already exist.';
+        errEl.style.display = '';
+      }
+    }
+
+    function resetRegisterForm() {
+      ['regName', 'regUsername', 'regEmail', 'regPassword', 'regConfirm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      const role = document.getElementById('regRole');
+      if (role) role.value = 'STUDENT';
+    }
+
+    async function initAdmin() {
+      try {
+        const [facs, books] = await Promise.all([
+          adminGet('/api/facilities'),
+          adminGet('/api/bookings'),
+        ]);
+        adminFacilities = facs || [];
+        adminBookings = books || [];
+      } catch (err) {
+        console.warn('[initAdmin] Failed to load data:', err);
+        adminFacilities = [];
+        adminBookings = [];
+      }
+
+      buildDashboard();
+      buildFacilitiesPage();
+      buildBookingsPage();
+      buildRegisterPage();
+
+      // Navigate to dashboard view
+      showAdminPage('dashboard', null);
+    }
+
+    if (_token) initAdmin();
+  </script>
+</body>
+
+</html>

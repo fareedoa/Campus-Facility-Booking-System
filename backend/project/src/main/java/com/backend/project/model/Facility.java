@@ -24,4 +24,7 @@ public class Facility {
 
     @Column(nullable = false)
     private Integer capacity;
+
+    @Column(length = 50)
+    private String type;
 }
