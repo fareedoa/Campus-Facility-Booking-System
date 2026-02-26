@@ -12,7 +12,7 @@
 //   Local dev:   'http://localhost:8090'
 //   Render:      'https://your-app-name.onrender.com'
 //   Custom:      'https://api.yourdomain.com'
-const BASE_URL = 'http://localhost:8090';
+const BASE_URL = 'https://campus-facility-booking-system-zwum.onrender.com';
 
 // ── Page title map (used by the topbar) ──
 const PAGE_TITLES = {
