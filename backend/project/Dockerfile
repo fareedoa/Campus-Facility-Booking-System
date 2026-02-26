@@ -7,6 +7,9 @@ WORKDIR /app
 # Copy all project files
 COPY . .
 
+# Copy .env into the container
+COPY .env .env
+
 # Build the project using Maven wrapper
 RUN ./mvnw clean package -DskipTests
 
