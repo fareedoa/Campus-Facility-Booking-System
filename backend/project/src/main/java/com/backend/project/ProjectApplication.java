@@ -12,7 +12,6 @@ import com.backend.project.repository.FacilityRepository;
 public class ProjectApplication {
 
 	public static void main(String[] args) {
-        Dotenv.load();
         SpringApplication.run(ProjectApplication.class, args
         );
 	}
