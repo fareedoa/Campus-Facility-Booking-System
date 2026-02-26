@@ -1,16 +1,20 @@
-# Use Java 21 (or 17 depending on your project)
+# Use Java 21
 FROM eclipse-temurin:21-jdk
 
+# Set working directory
 WORKDIR /app
 
-# Copy everything
+# Copy all project files
 COPY . .
 
-# Build the application
+# Build the project using Maven wrapper
 RUN ./mvnw clean package -DskipTests
 
-# Expose port
+# Expose port 8080
 EXPOSE 8080
 
-# Run the jar
-CMD CMD ["java", "-jar", "target/project-0.0.1-SNAPSHOT.jar"]
+# Copy the built jar to a known name
+RUN cp target/project-0.0.1-SNAPSHOT.jar app.jar
+
+# Run the application
+CMD ["java", "-jar", "app.jar"]
