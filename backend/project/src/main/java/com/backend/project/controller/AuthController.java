@@ -6,6 +6,11 @@ import com.backend.project.model.User;
 import com.backend.project.service.AuthenticationService;
 import com.backend.project.service.JwtService;
 import com.backend.project.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Tag(name = "Authentication", description = "User registration, login, logout, and current-user endpoints")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -33,6 +39,12 @@ public class AuthController {
     private final JwtService jwtService;
     private final UserService userService;
 
+    @Operation(summary = "Register a new user",
+               description = "Creates a new user account with one of the roles: STUDENT, STAFF, or ADMIN.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "User registered successfully"),
+        @ApiResponse(responseCode = "409", description = "Username or email already exists")
+    })
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(
             @Valid @RequestBody RegisterRequest request) {
@@ -72,6 +84,13 @@ public class AuthController {
         ));
     }
 
+    @Operation(summary = "Login",
+               description = "Authenticates a user and returns a JWT in the response body. "
+                           + "The token is also set as an HttpOnly cookie (`next-auth.session-token`).")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Login successful — JWT returned"),
+        @ApiResponse(responseCode = "401", description = "Invalid username or password")
+    })
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(
             @Valid @RequestBody LoginRequest request,
@@ -112,6 +131,12 @@ public class AuthController {
         return ResponseEntity.ok(body);
     }
 
+    @Operation(summary = "Logout",
+               description = "Blacklists the current JWT and clears the HttpOnly session cookie.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Logged out successfully")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
             HttpServletRequest request,
@@ -135,6 +160,13 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
+    @Operation(summary = "Get current user",
+               description = "Returns the details (username, role, email) of the currently authenticated user.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Current user details returned"),
+        @ApiResponse(responseCode = "401", description = "Missing, invalid, or expired token")
+    })
+    @SecurityRequirement(name = "bearerAuth")
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(HttpServletRequest request) {
         String token = extractToken(request);
